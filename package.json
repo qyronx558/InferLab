@@ -14,6 +14,12 @@
     "build": "npm run build --workspace @inferlab/web",
     "preview:web": "npm run preview --workspace @inferlab/web",
     "lint": "npm run lint --workspace @inferlab/web",
-    "typecheck": "npm run typecheck --workspace @inferlab/web"
+    "typecheck": "npm run typecheck --workspace @inferlab/web",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "test": "npm run test --workspace @inferlab/web"
+  },
+  "devDependencies": {
+    "prettier": "~3.9.10"
   }
 }

@@ -1,7 +1,7 @@
 # InferLab
 
 Local LLM inference benchmarking with a public, read-only portfolio of reviewed
-results. This is the monorepo skeleton (rulebook Prompt 01), not a working benchmark
+results. This is the foundation with engineering guardrails (rulebook Prompts 01-02), not a working benchmark
 platform. Measurements, authentication, execution, database, publishing and cloud
 deployment are not implemented yet.
 
@@ -16,7 +16,7 @@ experiments/               Future safe experiment configurations
 tests/                     CPU-only package/API smoke checks
 scripts/                   Windows PowerShell setup, run and check commands
 docs/                      Product and architecture specifications
-.github/workflows/         Reserved for the next CI stage
+.github/workflows/         CPU-only lint, types, build and unit-test CI
 ```
 
 ## Windows setup
@@ -81,13 +81,16 @@ the frontend example sets only a public display title.
 ```powershell
 .\scripts\check.ps1
 # Individual checks:
+npm.cmd run format:check
 npm.cmd run lint
 npm.cmd run typecheck
 npm.cmd run build
+npm.cmd test
 uv run --locked ruff check .
 uv run --locked ruff format --check .
 uv run --locked mypy
-uv run --locked pytest
+uv run --locked pytest -m "not gpu"
+uv run --locked pre-commit run --all-files
 
 # Independently build the core wheel:
 uv build --package inferlab-core
@@ -95,9 +98,12 @@ uv build --package inferlab-core
 npm.cmd run preview:web
 ```
 
-Expected: lint/types/build succeed, three CPU-only smoke tests pass, worker exits
-without executing jobs, core wheel builds under `dist/`. CI automation and broader
-test conventions belong to Prompt 02; no hosted workflow is enabled here.
+Expected: formatting/lint/types/build succeed, three Python CPU-only smoke tests
+pass, worker exits without executing jobs, core wheel builds under `dist/`.
+Vitest permits the initially empty frontend suite. GitHub Actions repeats the
+checks on pull requests and pushes to main with no GPU or secrets. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for optional hooks, test conventions, secret
+scanning guidance and the boundary around owner-written benchmark algorithms.
 
 ## Security and scope
 

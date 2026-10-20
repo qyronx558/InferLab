@@ -11,6 +11,8 @@ dev = [
   "pytest>=8.4.0,<9",
   "ruff>=0.14.0,<0.15",
   "mypy>=1.18.0,<1.19",
+  "pre-commit>=4.3,<5",
+  "pre-commit-hooks>=6,<7",
 ]
 
 [tool.uv]
@@ -35,7 +37,8 @@ select = ["E", "F", "I", "B", "UP"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers"
+addopts = "-ra --strict-markers --strict-config"
+markers = ["gpu: opt-in local GPU integration test; excluded from hosted CI"]
 
 [tool.mypy]
 python_version = "3.12"

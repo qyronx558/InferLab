@@ -1,0 +1,45 @@
+minimum_pre_commit_version: '4.3.0'
+default_stages: [pre-commit]
+exclude: ^(\.cache/|\.venv/|node_modules/|benchmark_artifacts/|models/)
+repos:
+  - repo: local
+    hooks:
+      - id: private-key
+        name: Detect private keys (not a complete secret scanner)
+        entry: uv run --locked detect-private-key
+        language: system
+        types: [text]
+      - id: prettier
+        name: Prettier check
+        entry: npm run format:check
+        language: system
+        files: \.(tsx?|jsx?|css|json|ya?ml|md|html)$
+        pass_filenames: false
+      - id: eslint
+        name: ESLint
+        entry: npm run lint
+        language: system
+        files: ^apps/web/.*\.[jt]sx?$
+        pass_filenames: false
+      - id: typescript
+        name: TypeScript strict check
+        entry: npm run typecheck
+        language: system
+        files: ^apps/web/.*(\.[jt]sx?|tsconfig\.json)$
+        pass_filenames: false
+      - id: ruff-check
+        name: Ruff lint
+        entry: uv run --locked ruff check
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: Ruff format check
+        entry: uv run --locked ruff format --check
+        language: system
+        types: [python]
+      - id: mypy
+        name: mypy strict check
+        entry: uv run --locked mypy
+        language: system
+        types: [python]
+        pass_filenames: false
