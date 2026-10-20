@@ -1,0 +1,64 @@
+name: CPU checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cpu-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Lint, types, build and CPU unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CUDA_VISIBLE_DEVICES: ''
+      HF_HUB_OFFLINE: '1'
+      TRANSFORMERS_OFFLINE: '1'
+      UV_PYTHON_DOWNLOADS: never
+    steps:
+      - name: Check out source without persisting credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version-file: .python-version
+      - name: Set up pinned uv
+        uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
+        with:
+          version: '0.9.9'
+          enable-cache: false
+      - name: Install locked dependencies
+        run: |
+          npm ci
+          uv sync --locked
+      - name: Check formatting, lint and TypeScript build
+        run: |
+          npm run format:check
+          npm run lint
+          npm run build
+      - name: Run frontend CPU unit tests
+        run: npm test
+      - name: Check Python lint, formatting and types
+        run: |
+          uv run --locked ruff check .
+          uv run --locked ruff format --check .
+          uv run --locked mypy
+      - name: Run Python CPU unit tests
+        run: uv run --locked pytest -m 'not gpu'
+      - name: Check optional hooks and tracked private keys
+        run: uv run --locked pre-commit run --all-files

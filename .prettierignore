@@ -1,0 +1,21 @@
+node_modules/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.cache/
+.local/
+dist/
+build/
+coverage/
+htmlcov/
+package-lock.json
+uv.lock
+benchmark_artifacts/
+models/
+# Python uses Ruff; retain the reviewed product specifications as authored.
+*.py
+docs/
+.env
+.env.*
+!.env.example
