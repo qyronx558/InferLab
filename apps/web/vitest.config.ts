@@ -1,10 +1,15 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, mergeConfig } from 'vitest/config';
+import viteConfig from './vite.config.ts';
 
-export default defineConfig({
-  test: {
-    environment: 'node',
-    include: ['src/**/*.test.{ts,tsx}'],
-    clearMocks: true,
-    restoreMocks: true,
-  },
-});
+export default mergeConfig(
+  viteConfig,
+  defineConfig({
+    test: {
+      environment: 'happy-dom',
+      setupFiles: ['./src/test/setup.ts'],
+      include: ['src/**/*.test.{ts,tsx}'],
+      clearMocks: true,
+      restoreMocks: true,
+    },
+  }),
+);

@@ -1,14 +1,15 @@
 # InferLab
 
 Local LLM inference benchmarking with a public, read-only portfolio of reviewed
-results. This is the foundation with engineering guardrails (rulebook Prompts 01-02), not a working benchmark
-platform. Measurements, authentication, execution, database, publishing and cloud
-deployment are not implemented yet.
+results. This is the dashboard design-system preview with engineering guardrails
+(rulebook Prompts 01-03). Every displayed result is labeled DEMO DATA. Real
+measurements, authentication, execution, database, publishing and cloud deployment
+are not implemented yet.
 
 ## Layout
 
 ```text
-apps/web/                  Vite + React + TypeScript status page
+apps/web/                  React/TypeScript + Tailwind + shadcn/ui demo dashboard
 apps/api/                  FastAPI health-only app (src/inferlab_api)
 packages/inferlab_core/     Installable Python core; owner writes algorithms
 worker/                    Worker placeholder; exits without executing jobs
@@ -100,10 +101,24 @@ npm.cmd run preview:web
 
 Expected: formatting/lint/types/build succeed, three Python CPU-only smoke tests
 pass, worker exits without executing jobs, core wheel builds under `dist/`.
-Vitest permits the initially empty frontend suite. GitHub Actions repeats the
+Six frontend interaction tests cover the mock dashboard. GitHub Actions repeats the
 checks on pull requests and pushes to main with no GPU or secrets. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for optional hooks, test conventions, secret
 scanning guidance and the boundary around owner-written benchmark algorithms.
+
+The dashboard routes are Overview (`/`), Experiments, Compare, Models, Reports and
+Methodology. Search/filter experiments, change comparison models, inspect feedback
+states with the header's preview selector, and export clearly labeled demo JSON.
+See [the design-system guide](docs/DESIGN-SYSTEM.md) for components, tokens and
+accessibility conventions. Optional local browser checks:
+
+```powershell
+npm.cmd exec --workspace @inferlab/web -- playwright install chromium
+npm.cmd run test:e2e
+```
+
+These checks use headless Chromium on CPU to inspect desktop/mobile layouts,
+keyboard navigation and automated accessibility. They are separate from hosted CI.
 
 ## Security and scope
 
