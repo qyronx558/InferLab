@@ -60,10 +60,12 @@ hooks even when a contributor has not installed them locally.
 Add focused tests for changed behavior, boundaries and failures; avoid tests that
 only restate implementation. Python tests go in `tests/` and run with
 `uv run --locked pytest -m "not gpu"`. Frontend unit tests go beside source as
-`*.test.ts` or `*.test.tsx` and run with `npm.cmd test`; Vitest uses the Node CPU
-environment. The scaffold intentionally has no frontend behavior tests yet, so
-Vitest permits an empty suite. Python's three existing smoke tests still run;
-pytest collection errors, failures and a completely empty Python suite fail CI.
+`*.test.ts` or `*.test.tsx` and run with `npm.cmd test`; Vitest uses happy-dom on
+CPU for DOM/keyboard interactions. Six dashboard interaction tests and Python's
+three smoke tests run without a backend. Empty suites, collection errors and test
+failures fail CI. Optional browser accessibility/layout checks live in
+`apps/web/e2e` and run with `npm.cmd run test:e2e` after installing Chromium;
+see `docs/DESIGN-SYSTEM.md`.
 
 Mock engine/network interfaces; do not contact Ollama, llama.cpp, paid APIs or cloud
 accounts from unit tests. No models, CUDA, GPU runner or personal evaluation data
