@@ -43,4 +43,4 @@ markers = ["gpu: opt-in local GPU integration test; excluded from hosted CI"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["apps/api/src", "packages/inferlab_core/src", "worker/src", "tests"]
+files = ["apps/api/src", "packages/inferlab_core/src", "worker/src", "tests", "examples"]

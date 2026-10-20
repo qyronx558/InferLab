@@ -3,7 +3,8 @@
 The authoritative definitions are in `apps/api/src/inferlab_api/contracts.py`.
 They cover the [PRD](PRD.md) without implementing benchmark math, execution, a
 queue, storage, authentication or new HTTP endpoints. FastAPI remains health-only.
-`packages/inferlab_core` and the worker are unchanged.
+The contract layer does not execute core metrics or start the worker. Separately,
+the owner authorized CPU-only metric helpers; see [METRICS.md](METRICS.md).
 
 ## Source and generated artifacts
 

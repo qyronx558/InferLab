@@ -2,7 +2,8 @@
 
 Local LLM inference benchmarking with a public, read-only portfolio of reviewed
 results. This is the dashboard design-system preview with engineering guardrails
-(rulebook Prompts 01-04). Every displayed result is labeled DEMO DATA. Real
+(rulebook Prompts 01-04), plus the explicitly authorized CPU metric helpers from
+the tutoring step. Every displayed result is labeled DEMO DATA. Real
 measurements, authentication, execution, database, publishing and cloud deployment
 are not implemented yet.
 
@@ -12,10 +13,11 @@ are not implemented yet.
 apps/web/                  React/TypeScript + Tailwind + shadcn/ui demo dashboard
 apps/api/                  FastAPI health-only app (src/inferlab_api)
 contracts/                 Generated OpenAPI schemas and validated synthetic wire fixtures
-packages/inferlab_core/     Installable Python core; owner writes algorithms
+packages/inferlab_core/     Installable Python core with pure CPU metric helpers
+examples/                  Synthetic metric and toy-generation walkthrough
 worker/                    Worker placeholder; exits without executing jobs
 experiments/               Future safe experiment configurations
-tests/                     CPU-only package/API smoke checks
+tests/                     CPU-only metric, contract and API checks
 scripts/                   Windows PowerShell setup, run and check commands
 docs/                      Product and architecture specifications
 .github/workflows/         CPU-only lint, types, build and unit-test CI
@@ -136,6 +138,15 @@ distinct from job failure; cached published demo reports remain readable. All
 fixture numbers/checksums are synthetic. No benchmark math or new endpoints are
 implemented by the contract layer.
 
+The [metric guide](docs/METRICS.md) explains the implemented TTFT, TPOT, throughput,
+elapsed-time and dense KV-cache helpers. This step was AI-assisted at the owner's
+explicit request; it does not add an inference runner. Try the synthetic examples:
+
+```powershell
+uv run --locked python examples/metrics_walkthrough.py
+uv run --locked pytest tests/test_metrics.py
+```
+
 ## Security and scope
 
 Development servers bind to loopback. Plain HTTP is for this health-only scaffold;
@@ -148,7 +159,7 @@ Never put secrets in `VITE_` variables: they become public bundle content. Keep
 model weights, databases, traces and `.env` files out of Git. Setup preserves
 existing `.env` files and does not modify experiments or model data. Dependency
 install/build hooks execute third-party code; review lockfile changes. No cloud
-keys, paid services, ML algorithms, Docker or hosted GPU jobs are included.
+keys, paid services, real model execution, Docker or hosted GPU jobs are included.
 
 Read the [PRD](docs/PRD.md), [architecture](docs/ARCHITECTURE.md),
 [zero-cost ADR](docs/ADR-001-zero-cost.md), and
