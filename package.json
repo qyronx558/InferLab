@@ -1,0 +1,19 @@
+{
+  "name": "inferlab",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/web"
+  ],
+  "engines": {
+    "node": ">=22.13.0 <23 || >=24 <25",
+    "npm": ">=10 <12"
+  },
+  "scripts": {
+    "dev:web": "npm run dev --workspace @inferlab/web",
+    "build": "npm run build --workspace @inferlab/web",
+    "preview:web": "npm run preview --workspace @inferlab/web",
+    "lint": "npm run lint --workspace @inferlab/web",
+    "typecheck": "npm run typecheck --workspace @inferlab/web"
+  }
+}

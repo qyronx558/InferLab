@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "inferlab-worker"
+version = "0.1.0"
+description = "Non-executing local worker scaffold"
+requires-python = ">=3.12,<3.13"
+dependencies = ["inferlab-core==0.1.0"]
+
+[project.scripts]
+inferlab-worker = "inferlab_worker.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/inferlab_worker"]
