@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "inferlab-api"
+version = "0.1.0"
+description = "Private local InferLab API scaffold"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi>=0.135,<0.136",
+  "pydantic>=2.13,<2.14",
+  "uvicorn>=0.41,<0.42",
+  "inferlab-core==0.1.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/inferlab_api"]

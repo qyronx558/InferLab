@@ -1,0 +1,43 @@
+[project]
+name = "inferlab-workspace"
+version = "0.1.0"
+description = "Local InferLab development workspace"
+requires-python = ">=3.12,<3.13"
+dependencies = ["inferlab-api==0.1.0", "inferlab-core==0.1.0", "inferlab-worker==0.1.0"]
+
+[dependency-groups]
+dev = [
+  "httpx2>=2.15.1,<2.16",
+  "pytest>=8.4.0,<9",
+  "ruff>=0.14.0,<0.15",
+  "mypy>=1.18.0,<1.19",
+]
+
+[tool.uv]
+package = false
+cache-dir = ".cache/uv"
+
+[tool.uv.workspace]
+members = ["apps/api", "packages/inferlab_core", "worker"]
+
+[tool.uv.sources]
+inferlab-api = { workspace = true }
+inferlab-core = { workspace = true }
+inferlab-worker = { workspace = true }
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["apps/api/src", "packages/inferlab_core/src", "worker/src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["apps/api/src", "packages/inferlab_core/src", "worker/src", "tests"]
