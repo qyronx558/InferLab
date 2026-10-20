@@ -1,0 +1,1648 @@
+{
+  "components": {
+    "schemas": {
+      "Available_ExperimentPage_": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ExperimentPage"
+          },
+          "label": {
+            "enum": [
+              "DEMO DATA",
+              "MEASURED DATA"
+            ],
+            "title": "Label",
+            "type": "string"
+          },
+          "state": {
+            "const": "complete",
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "label",
+          "data"
+        ],
+        "title": "Available[ExperimentPage]",
+        "type": "object"
+      },
+      "Available_Registry_": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Registry"
+          },
+          "label": {
+            "enum": [
+              "DEMO DATA",
+              "MEASURED DATA"
+            ],
+            "title": "Label",
+            "type": "string"
+          },
+          "state": {
+            "const": "complete",
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "label",
+          "data"
+        ],
+        "title": "Available[Registry]",
+        "type": "object"
+      },
+      "Available_WorkerHeartbeat_": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/WorkerHeartbeat"
+          },
+          "label": {
+            "enum": [
+              "DEMO DATA",
+              "MEASURED DATA"
+            ],
+            "title": "Label",
+            "type": "string"
+          },
+          "state": {
+            "const": "complete",
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "label",
+          "data"
+        ],
+        "title": "Available[WorkerHeartbeat]",
+        "type": "object"
+      },
+      "Available_list_PublishedReport__": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/PublishedReport"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "label": {
+            "enum": [
+              "DEMO DATA",
+              "MEASURED DATA"
+            ],
+            "title": "Label",
+            "type": "string"
+          },
+          "state": {
+            "const": "complete",
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "label",
+          "data"
+        ],
+        "title": "Available[list[PublishedReport]]",
+        "type": "object"
+      },
+      "Available_list_RunMetrics__": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/RunMetrics"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "label": {
+            "enum": [
+              "DEMO DATA",
+              "MEASURED DATA"
+            ],
+            "title": "Label",
+            "type": "string"
+          },
+          "state": {
+            "const": "complete",
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "label",
+          "data"
+        ],
+        "title": "Available[list[RunMetrics]]",
+        "type": "object"
+      },
+      "Available_list_Summary__": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Summary"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "label": {
+            "enum": [
+              "DEMO DATA",
+              "MEASURED DATA"
+            ],
+            "title": "Label",
+            "type": "string"
+          },
+          "state": {
+            "const": "complete",
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "label",
+          "data"
+        ],
+        "title": "Available[list[Summary]]",
+        "type": "object"
+      },
+      "ContractCatalog": {
+        "additionalProperties": false,
+        "description": "Schema roots and a fully validated synthetic wire-fixture bundle.",
+        "properties": {
+          "display_states": {
+            "items": {
+              "enum": [
+                "unavailable",
+                "pending",
+                "running",
+                "complete",
+                "failed",
+                "cancelled"
+              ],
+              "type": "string"
+            },
+            "maxItems": 6,
+            "minItems": 6,
+            "title": "Display States",
+            "type": "array"
+          },
+          "experiments": {
+            "$ref": "#/components/schemas/Resource_ExperimentPage_"
+          },
+          "job_scenarios": {
+            "items": {
+              "$ref": "#/components/schemas/Job"
+            },
+            "maxItems": 6,
+            "minItems": 6,
+            "title": "Job Scenarios",
+            "type": "array"
+          },
+          "label": {
+            "const": "DEMO DATA",
+            "title": "Label",
+            "type": "string"
+          },
+          "registry": {
+            "$ref": "#/components/schemas/Resource_Registry_"
+          },
+          "reports": {
+            "$ref": "#/components/schemas/Resource_list_PublishedReport__"
+          },
+          "runs": {
+            "$ref": "#/components/schemas/Resource_list_RunMetrics__"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "submit_request": {
+            "$ref": "#/components/schemas/ExperimentSubmitRequest"
+          },
+          "submit_response": {
+            "$ref": "#/components/schemas/SubmissionReceipt"
+          },
+          "summaries": {
+            "$ref": "#/components/schemas/Resource_list_Summary__"
+          },
+          "unavailable_response": {
+            "$ref": "#/components/schemas/Unavailable"
+          },
+          "worker": {
+            "$ref": "#/components/schemas/Resource_WorkerHeartbeat_"
+          }
+        },
+        "required": [
+          "schema_version",
+          "label",
+          "registry",
+          "experiments",
+          "runs",
+          "summaries",
+          "reports",
+          "worker",
+          "submit_request",
+          "submit_response",
+          "job_scenarios",
+          "unavailable_response",
+          "display_states"
+        ],
+        "title": "ContractCatalog",
+        "type": "object"
+      },
+      "Engine": {
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "enum": [
+              "available",
+              "unavailable"
+            ],
+            "title": "Availability",
+            "type": "string"
+          },
+          "build": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Build",
+            "type": "string"
+          },
+          "id": {
+            "enum": [
+              "ollama",
+              "llama.cpp"
+            ],
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "seed_supported": {
+            "title": "Seed Supported",
+            "type": "boolean"
+          },
+          "version": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "version",
+          "build",
+          "availability",
+          "seed_supported"
+        ],
+        "title": "Engine",
+        "type": "object"
+      },
+      "Experiment": {
+        "additionalProperties": false,
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/ExperimentConfig"
+          },
+          "id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "job": {
+            "$ref": "#/components/schemas/Job"
+          },
+          "name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/Summary"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "config",
+          "provenance",
+          "job",
+          "summary"
+        ],
+        "title": "Experiment",
+        "type": "object"
+      },
+      "ExperimentConfig": {
+        "additionalProperties": false,
+        "properties": {
+          "concurrency": {
+            "maximum": 1,
+            "minimum": 1,
+            "title": "Concurrency",
+            "type": "integer"
+          },
+          "condition": {
+            "enum": [
+              "warm",
+              "cold"
+            ],
+            "title": "Condition",
+            "type": "string"
+          },
+          "context_tokens": {
+            "maximum": 8192,
+            "minimum": 128,
+            "title": "Context Tokens",
+            "type": "integer"
+          },
+          "engine_id": {
+            "enum": [
+              "ollama",
+              "llama.cpp"
+            ],
+            "title": "Engine Id",
+            "type": "string"
+          },
+          "gpu_device_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Gpu Device Id",
+            "type": "string"
+          },
+          "gpu_layers": {
+            "anyOf": [
+              {
+                "maximum": 200,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gpu Layers"
+          },
+          "input_token_budget": {
+            "maximum": 8191,
+            "minimum": 1,
+            "title": "Input Token Budget",
+            "type": "integer"
+          },
+          "max_output_tokens": {
+            "maximum": 2048,
+            "minimum": 1,
+            "title": "Max Output Tokens",
+            "type": "integer"
+          },
+          "model_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Model Id",
+            "type": "string"
+          },
+          "repetitions": {
+            "maximum": 20,
+            "minimum": 1,
+            "title": "Repetitions",
+            "type": "integer"
+          },
+          "sampling": {
+            "$ref": "#/components/schemas/Sampling"
+          },
+          "timeout_seconds": {
+            "maximum": 3600,
+            "minimum": 1,
+            "title": "Timeout Seconds",
+            "type": "integer"
+          },
+          "warmups": {
+            "maximum": 5,
+            "minimum": 0,
+            "title": "Warmups",
+            "type": "integer"
+          },
+          "workload_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Workload Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "engine_id",
+          "model_id",
+          "workload_id",
+          "condition",
+          "context_tokens",
+          "input_token_budget",
+          "max_output_tokens",
+          "sampling",
+          "warmups",
+          "repetitions",
+          "concurrency",
+          "timeout_seconds",
+          "gpu_device_id",
+          "gpu_layers"
+        ],
+        "title": "ExperimentConfig",
+        "type": "object"
+      },
+      "ExperimentPage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Experiment"
+            },
+            "maxItems": 100,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "ExperimentPage",
+        "type": "object"
+      },
+      "ExperimentSubmitRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/ExperimentConfig"
+          },
+          "idempotency_key": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "idempotency_key",
+          "config"
+        ],
+        "title": "ExperimentSubmitRequest",
+        "type": "object"
+      },
+      "Hardware": {
+        "additionalProperties": false,
+        "properties": {
+          "device_memory_mib": {
+            "minimum": 1,
+            "title": "Device Memory Mib",
+            "type": "integer"
+          },
+          "device_name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Device Name",
+            "type": "string"
+          },
+          "driver_version": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Driver Version",
+            "type": "string"
+          },
+          "gpu_settings": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Gpu Settings",
+            "type": "string"
+          }
+        },
+        "required": [
+          "device_name",
+          "device_memory_mib",
+          "driver_version",
+          "gpu_settings"
+        ],
+        "title": "Hardware",
+        "type": "object"
+      },
+      "Job": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt": {
+            "maximum": 2,
+            "minimum": 0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "cancellation_requested": {
+            "title": "Cancellation Requested",
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "validation_error",
+                  "worker_lost",
+                  "engine_unavailable",
+                  "out_of_memory",
+                  "timeout",
+                  "cancelled"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "experiment_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "phase": {
+            "enum": [
+              "queued",
+              "leased",
+              "running",
+              "completed",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Phase",
+            "type": "string"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "state": {
+            "enum": [
+              "pending",
+              "running",
+              "complete",
+              "failed",
+              "cancelled"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "experiment_id",
+          "state",
+          "phase",
+          "attempt",
+          "created_at",
+          "started_at",
+          "finished_at",
+          "error_code",
+          "cancellation_requested"
+        ],
+        "title": "Job",
+        "type": "object"
+      },
+      "MemoryMiB": {
+        "additionalProperties": false,
+        "properties": {
+          "unavailable_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_measured",
+                  "unsupported",
+                  "no_samples",
+                  "worker_offline",
+                  "api_unreachable"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unavailable Reason"
+          },
+          "unit": {
+            "const": "MiB",
+            "title": "Unit",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "value",
+          "unavailable_reason",
+          "unit"
+        ],
+        "title": "MemoryMiB",
+        "type": "object"
+      },
+      "Milliseconds": {
+        "additionalProperties": false,
+        "properties": {
+          "unavailable_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_measured",
+                  "unsupported",
+                  "no_samples",
+                  "worker_offline",
+                  "api_unreachable"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unavailable Reason"
+          },
+          "unit": {
+            "const": "ms",
+            "title": "Unit",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "value",
+          "unavailable_reason",
+          "unit"
+        ],
+        "title": "Milliseconds",
+        "type": "object"
+      },
+      "Model": {
+        "additionalProperties": false,
+        "properties": {
+          "engine_ids": {
+            "items": {
+              "enum": [
+                "ollama",
+                "llama.cpp"
+              ],
+              "type": "string"
+            },
+            "maxItems": 2,
+            "minItems": 1,
+            "title": "Engine Ids",
+            "type": "array"
+          },
+          "id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "license_name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "License Name",
+            "type": "string"
+          },
+          "max_context_tokens": {
+            "maximum": 8192,
+            "minimum": 128,
+            "title": "Max Context Tokens",
+            "type": "integer"
+          },
+          "name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "parameter_size": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Parameter Size",
+            "type": "string"
+          },
+          "quantization": {
+            "enum": [
+              "Q4_K_M",
+              "Q5_K_M",
+              "Q8_0",
+              "FP16"
+            ],
+            "title": "Quantization",
+            "type": "string"
+          },
+          "revision": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Revision",
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "parameter_size",
+          "revision",
+          "sha256",
+          "quantization",
+          "engine_ids",
+          "max_context_tokens",
+          "license_name"
+        ],
+        "title": "Model",
+        "type": "object"
+      },
+      "Provenance": {
+        "additionalProperties": false,
+        "properties": {
+          "engine": {
+            "$ref": "#/components/schemas/Engine"
+          },
+          "hardware": {
+            "$ref": "#/components/schemas/Hardware"
+          },
+          "methodology_version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Methodology Version",
+            "type": "string"
+          },
+          "model": {
+            "$ref": "#/components/schemas/Model"
+          },
+          "workload": {
+            "$ref": "#/components/schemas/Workload"
+          }
+        },
+        "required": [
+          "engine",
+          "model",
+          "workload",
+          "hardware",
+          "methodology_version"
+        ],
+        "title": "Provenance",
+        "type": "object"
+      },
+      "PublishedReport": {
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Category",
+            "type": "string"
+          },
+          "config": {
+            "$ref": "#/components/schemas/ExperimentConfig"
+          },
+          "data_kind": {
+            "enum": [
+              "demo",
+              "measured"
+            ],
+            "title": "Data Kind",
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "enum": [
+              "DEMO DATA",
+              "MEASURED DATA"
+            ],
+            "title": "Label",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance"
+          },
+          "publication_state": {
+            "const": "published",
+            "title": "Publication State",
+            "type": "string"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "runs": {
+            "items": {
+              "$ref": "#/components/schemas/RunMetrics"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Runs",
+            "type": "array"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/Summary"
+          },
+          "title": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "category",
+          "publication_state",
+          "data_kind",
+          "label",
+          "published_at",
+          "config",
+          "provenance",
+          "summary",
+          "runs",
+          "limitations"
+        ],
+        "title": "PublishedReport",
+        "type": "object"
+      },
+      "QualityScore": {
+        "additionalProperties": false,
+        "properties": {
+          "unavailable_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_measured",
+                  "unsupported",
+                  "no_samples",
+                  "worker_offline",
+                  "api_unreachable"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unavailable Reason"
+          },
+          "unit": {
+            "const": "score",
+            "title": "Unit",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "value",
+          "unavailable_reason",
+          "unit"
+        ],
+        "title": "QualityScore",
+        "type": "object"
+      },
+      "Registry": {
+        "additionalProperties": false,
+        "properties": {
+          "engines": {
+            "items": {
+              "$ref": "#/components/schemas/Engine"
+            },
+            "maxItems": 2,
+            "title": "Engines",
+            "type": "array"
+          },
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/Model"
+            },
+            "maxItems": 100,
+            "title": "Models",
+            "type": "array"
+          },
+          "workloads": {
+            "items": {
+              "$ref": "#/components/schemas/Workload"
+            },
+            "maxItems": 100,
+            "title": "Workloads",
+            "type": "array"
+          }
+        },
+        "required": [
+          "engines",
+          "models",
+          "workloads"
+        ],
+        "title": "Registry",
+        "type": "object"
+      },
+      "Resource_ExperimentPage_": {
+        "discriminator": {
+          "mapping": {
+            "complete": "#/components/schemas/Available_ExperimentPage_",
+            "unavailable": "#/components/schemas/Unavailable"
+          },
+          "propertyName": "state"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Available_ExperimentPage_"
+          },
+          {
+            "$ref": "#/components/schemas/Unavailable"
+          }
+        ]
+      },
+      "Resource_Registry_": {
+        "discriminator": {
+          "mapping": {
+            "complete": "#/components/schemas/Available_Registry_",
+            "unavailable": "#/components/schemas/Unavailable"
+          },
+          "propertyName": "state"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Available_Registry_"
+          },
+          {
+            "$ref": "#/components/schemas/Unavailable"
+          }
+        ]
+      },
+      "Resource_WorkerHeartbeat_": {
+        "discriminator": {
+          "mapping": {
+            "complete": "#/components/schemas/Available_WorkerHeartbeat_",
+            "unavailable": "#/components/schemas/Unavailable"
+          },
+          "propertyName": "state"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Available_WorkerHeartbeat_"
+          },
+          {
+            "$ref": "#/components/schemas/Unavailable"
+          }
+        ]
+      },
+      "Resource_list_PublishedReport__": {
+        "discriminator": {
+          "mapping": {
+            "complete": "#/components/schemas/Available_list_PublishedReport__",
+            "unavailable": "#/components/schemas/Unavailable"
+          },
+          "propertyName": "state"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Available_list_PublishedReport__"
+          },
+          {
+            "$ref": "#/components/schemas/Unavailable"
+          }
+        ]
+      },
+      "Resource_list_RunMetrics__": {
+        "discriminator": {
+          "mapping": {
+            "complete": "#/components/schemas/Available_list_RunMetrics__",
+            "unavailable": "#/components/schemas/Unavailable"
+          },
+          "propertyName": "state"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Available_list_RunMetrics__"
+          },
+          {
+            "$ref": "#/components/schemas/Unavailable"
+          }
+        ]
+      },
+      "Resource_list_Summary__": {
+        "discriminator": {
+          "mapping": {
+            "complete": "#/components/schemas/Available_list_Summary__",
+            "unavailable": "#/components/schemas/Unavailable"
+          },
+          "propertyName": "state"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Available_list_Summary__"
+          },
+          {
+            "$ref": "#/components/schemas/Unavailable"
+          }
+        ]
+      },
+      "RunMetrics": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt": {
+            "maximum": 2,
+            "minimum": 1,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "condition": {
+            "enum": [
+              "warm",
+              "cold"
+            ],
+            "title": "Condition",
+            "type": "string"
+          },
+          "decode_throughput": {
+            "$ref": "#/components/schemas/TokensPerSecond"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "validation_error",
+                  "worker_lost",
+                  "engine_unavailable",
+                  "out_of_memory",
+                  "timeout",
+                  "cancelled"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "experiment_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "input_tokens": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Tokens"
+          },
+          "kind": {
+            "enum": [
+              "warmup",
+              "measured"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "output_tokens": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Tokens"
+          },
+          "peak_vram": {
+            "$ref": "#/components/schemas/MemoryMiB"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/QualityScore"
+          },
+          "recorded_at": {
+            "format": "date-time",
+            "title": "Recorded At",
+            "type": "string"
+          },
+          "repetition": {
+            "maximum": 19,
+            "minimum": 0,
+            "title": "Repetition",
+            "type": "integer"
+          },
+          "request_latency": {
+            "$ref": "#/components/schemas/Milliseconds"
+          },
+          "state": {
+            "enum": [
+              "complete",
+              "failed",
+              "cancelled"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "ttft": {
+            "$ref": "#/components/schemas/Milliseconds"
+          }
+        },
+        "required": [
+          "id",
+          "experiment_id",
+          "attempt",
+          "state",
+          "condition",
+          "kind",
+          "repetition",
+          "recorded_at",
+          "input_tokens",
+          "output_tokens",
+          "ttft",
+          "request_latency",
+          "decode_throughput",
+          "peak_vram",
+          "quality",
+          "error_code"
+        ],
+        "title": "RunMetrics",
+        "type": "object"
+      },
+      "Sampling": {
+        "additionalProperties": false,
+        "properties": {
+          "seed": {
+            "anyOf": [
+              {
+                "maximum": 2147483647,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          },
+          "temperature": {
+            "maximum": 2,
+            "minimum": 0,
+            "title": "Temperature",
+            "type": "number"
+          },
+          "top_p": {
+            "exclusiveMinimum": 0,
+            "maximum": 1,
+            "title": "Top P",
+            "type": "number"
+          }
+        },
+        "required": [
+          "temperature",
+          "top_p",
+          "seed"
+        ],
+        "title": "Sampling",
+        "type": "object"
+      },
+      "SubmissionReceipt": {
+        "additionalProperties": false,
+        "properties": {
+          "experiment_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "job_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "phase": {
+            "const": "queued",
+            "title": "Phase",
+            "type": "string"
+          },
+          "state": {
+            "const": "pending",
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "experiment_id",
+          "job_id",
+          "state",
+          "phase"
+        ],
+        "title": "SubmissionReceipt",
+        "type": "object"
+      },
+      "Summary": {
+        "additionalProperties": false,
+        "properties": {
+          "accepted_run_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Accepted Run Ids",
+            "type": "array"
+          },
+          "condition": {
+            "enum": [
+              "warm",
+              "cold"
+            ],
+            "title": "Condition",
+            "type": "string"
+          },
+          "decode_throughput": {
+            "$ref": "#/components/schemas/TokensPerSecond"
+          },
+          "error_count": {
+            "minimum": 0,
+            "title": "Error Count",
+            "type": "integer"
+          },
+          "experiment_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "peak_vram": {
+            "$ref": "#/components/schemas/MemoryMiB"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/QualityScore"
+          },
+          "request_latency_p95": {
+            "$ref": "#/components/schemas/Milliseconds"
+          },
+          "sample_count": {
+            "maximum": 20,
+            "minimum": 0,
+            "title": "Sample Count",
+            "type": "integer"
+          },
+          "state": {
+            "enum": [
+              "unavailable",
+              "complete"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "ttft_median": {
+            "$ref": "#/components/schemas/Milliseconds"
+          }
+        },
+        "required": [
+          "experiment_id",
+          "condition",
+          "state",
+          "accepted_run_ids",
+          "sample_count",
+          "error_count",
+          "ttft_median",
+          "request_latency_p95",
+          "decode_throughput",
+          "peak_vram",
+          "quality"
+        ],
+        "title": "Summary",
+        "type": "object"
+      },
+      "TokensPerSecond": {
+        "additionalProperties": false,
+        "properties": {
+          "unavailable_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_measured",
+                  "unsupported",
+                  "no_samples",
+                  "worker_offline",
+                  "api_unreachable"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unavailable Reason"
+          },
+          "unit": {
+            "const": "tok/s",
+            "title": "Unit",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "value",
+          "unavailable_reason",
+          "unit"
+        ],
+        "title": "TokensPerSecond",
+        "type": "object"
+      },
+      "Unavailable": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "title": "Data",
+            "type": "null"
+          },
+          "reason": {
+            "enum": [
+              "worker_offline",
+              "api_unreachable"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "state": {
+            "const": "unavailable",
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "reason",
+          "data"
+        ],
+        "title": "Unavailable",
+        "type": "object"
+      },
+      "WorkerHeartbeat": {
+        "additionalProperties": false,
+        "properties": {
+          "active_job_id": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Job Id"
+          },
+          "availability": {
+            "enum": [
+              "online",
+              "offline",
+              "unknown"
+            ],
+            "title": "Availability",
+            "type": "string"
+          },
+          "last_seen_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Seen At"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "idle",
+                  "running"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "paused": {
+            "title": "Paused",
+            "type": "boolean"
+          },
+          "worker_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Worker Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "availability",
+          "worker_id",
+          "observed_at",
+          "last_seen_at",
+          "mode",
+          "active_job_id",
+          "paused"
+        ],
+        "title": "WorkerHeartbeat",
+        "type": "object"
+      },
+      "Workload": {
+        "additionalProperties": false,
+        "properties": {
+          "data_policy": {
+            "enum": [
+              "public",
+              "synthetic"
+            ],
+            "title": "Data Policy",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "license_name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "License Name",
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sha256",
+          "data_policy",
+          "license_name"
+        ],
+        "title": "Workload",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Schema-only contract catalog; paths are intentionally empty. This does not expose or implement an API.",
+    "title": "InferLab wire contracts",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {}
+}

@@ -18,9 +18,12 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "test": "npm run test --workspace @inferlab/web",
-    "test:e2e": "npm run test:e2e --workspace @inferlab/web --"
+    "test:e2e": "npm run test:e2e --workspace @inferlab/web --",
+    "contracts:generate": "uv run --locked python scripts/export_contracts.py && node scripts/generate-contract-types.mjs",
+    "contracts:check": "uv run --locked python scripts/export_contracts.py --check && node scripts/generate-contract-types.mjs --check"
   },
   "devDependencies": {
+    "openapi-typescript": "7.13.0",
     "prettier": "~3.9.10"
   }
 }

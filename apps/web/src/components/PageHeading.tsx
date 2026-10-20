@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 
 export function PageHeading({
   eyebrow,
@@ -11,6 +11,9 @@ export function PageHeading({
   description: string;
   action?: ReactNode;
 }) {
+  useEffect(() => {
+    document.title = `${title} · InferLab demo`;
+  }, [title]);
   return (
     <div className="page-heading">
       <div>

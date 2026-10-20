@@ -11,12 +11,15 @@ import {
   TableRow,
   TableCaption,
 } from '@/components/ui/table';
-import { demoModels } from '@/data/demo';
+import { useDemoData } from '@/api/hooks';
 
 export function Compare() {
+  const { demoModels } = useDemoData();
   const [params, setParams] = useSearchParams();
   const left = demoModels.find((model) => model.id === params.get('left')) ?? demoModels[0];
   const right = demoModels.find((model) => model.id === params.get('right')) ?? demoModels[1];
+  if (!left || !right)
+    return <p role="status">Two demo model configurations are required to compare.</p>;
   const choose = (side: string, value: string) => {
     const next = new URLSearchParams(params);
     next.set(side, value);
@@ -113,9 +116,21 @@ export function Compare() {
             </TableHeader>
             <TableBody>
               {[
-                ['Decode throughput', `${left.throughput} tok/s`, `${right.throughput} tok/s`],
-                ['Time to first token', `${left.ttft} ms`, `${right.ttft} ms`],
-                ['Illustrative VRAM', `${left.memory} GB`, `${right.memory} GB`],
+                [
+                  'Decode throughput',
+                  left.throughput === null ? 'Unavailable' : `${left.throughput} tok/s`,
+                  right.throughput === null ? 'Unavailable' : `${right.throughput} tok/s`,
+                ],
+                [
+                  'Time to first token',
+                  left.ttft === null ? 'Unavailable' : `${left.ttft} ms`,
+                  right.ttft === null ? 'Unavailable' : `${right.ttft} ms`,
+                ],
+                [
+                  'Illustrative VRAM',
+                  left.memory === null ? 'Unavailable' : `${left.memory} MiB`,
+                  right.memory === null ? 'Unavailable' : `${right.memory} MiB`,
+                ],
                 ['Quantization', left.quantization, right.quantization],
                 ['Quality evaluation', 'Unavailable', 'Unavailable'],
                 ['Measured sample size', 'Not measured', 'Not measured'],

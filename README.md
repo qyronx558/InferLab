@@ -2,7 +2,7 @@
 
 Local LLM inference benchmarking with a public, read-only portfolio of reviewed
 results. This is the dashboard design-system preview with engineering guardrails
-(rulebook Prompts 01-03). Every displayed result is labeled DEMO DATA. Real
+(rulebook Prompts 01-04). Every displayed result is labeled DEMO DATA. Real
 measurements, authentication, execution, database, publishing and cloud deployment
 are not implemented yet.
 
@@ -11,6 +11,7 @@ are not implemented yet.
 ```text
 apps/web/                  React/TypeScript + Tailwind + shadcn/ui demo dashboard
 apps/api/                  FastAPI health-only app (src/inferlab_api)
+contracts/                 Generated OpenAPI schemas and validated synthetic wire fixtures
 packages/inferlab_core/     Installable Python core; owner writes algorithms
 worker/                    Worker placeholder; exits without executing jobs
 experiments/               Future safe experiment configurations
@@ -82,6 +83,7 @@ the frontend example sets only a public display title.
 ```powershell
 .\scripts\check.ps1
 # Individual checks:
+npm.cmd run contracts:check
 npm.cmd run format:check
 npm.cmd run lint
 npm.cmd run typecheck
@@ -99,9 +101,9 @@ uv build --package inferlab-core
 npm.cmd run preview:web
 ```
 
-Expected: formatting/lint/types/build succeed, three Python CPU-only smoke tests
+Expected: contract drift checks, formatting/lint/types/build and CPU-only tests
 pass, worker exits without executing jobs, core wheel builds under `dist/`.
-Six frontend interaction tests cover the mock dashboard. GitHub Actions repeats the
+Frontend tests cover the dashboard and typed local queries. GitHub Actions repeats the
 checks on pull requests and pushes to main with no GPU or secrets. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for optional hooks, test conventions, secret
 scanning guidance and the boundary around owner-written benchmark algorithms.
@@ -119,6 +121,20 @@ npm.cmd run test:e2e
 
 These checks use headless Chromium on CPU to inspect desktop/mobile layouts,
 keyboard navigation and automated accessibility. They are separate from hosted CI.
+
+The [contract guide](docs/CONTRACTS.md) describes the Pydantic source, generated
+TypeScript, state/availability mapping, validated fixture bundle and TanStack Query
+hooks. Regenerate after changing a contract or source fixture:
+
+```powershell
+npm.cmd run contracts:generate
+npm.cmd run contracts:check
+```
+
+The mock adapter makes no HTTP requests. Worker offline and API unavailable are
+distinct from job failure; cached published demo reports remain readable. All
+fixture numbers/checksums are synthetic. No benchmark math or new endpoints are
+implemented by the contract layer.
 
 ## Security and scope
 

@@ -54,7 +54,7 @@ describe('demo workspace', () => {
   it('recovers a simulated error and exposes labeled loading and empty states', async () => {
     const user = userEvent.setup();
     preview('/?state=error');
-    expect(screen.getByRole('alert')).toHaveTextContent('simulated error');
+    expect(await screen.findByRole('alert')).toHaveTextContent('simulated error');
     await user.click(screen.getByRole('button', { name: 'Restore demo data' }));
     expect(screen.getByRole('heading', { name: 'A clearer view of performance.' })).toBeVisible();
     await user.selectOptions(screen.getByRole('combobox', { name: 'Preview state' }), 'loading');

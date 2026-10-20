@@ -1,7 +1,9 @@
 # InferLab dashboard design system
 
-This is the frontend-only rulebook Prompt 03 preview. Primary experiment, model
-and report fixtures live in `apps/web/src/data/demo.ts`; summary cards and hardware
+This is the frontend-only design-system preview with Prompt 04 typed mock queries.
+Primary fixtures live in `contracts/fixtures/demo.json`, are validated by Pydantic,
+and are emitted to the frontend as generated typed data. `apps/web/src/data/demo.ts`
+adapts them for presentation; summary cards and hardware
 context are also illustrative page content. All values, dates and lifecycle
 statuses are synthetic, not measurements or live device state. A persistent
 DEMO DATA badge and notice appear on every route.

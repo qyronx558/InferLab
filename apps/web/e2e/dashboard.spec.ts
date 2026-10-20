@@ -3,12 +3,33 @@ import AxeBuilder from '@axe-core/playwright';
 
 const routes = ['/', '/experiments', '/compare', '/models', '/reports', '/methodology'];
 
+test('cached published fixtures survive network offline and an offline worker', async ({
+  page,
+  context,
+}) => {
+  await page.goto('/');
+  await expect(page.getByText('offline (demo)', { exact: true })).toBeVisible();
+  await context.setOffline(true);
+  // In-app navigation uses the cached local snapshot, not a backend request.
+  await page.evaluate(() => {
+    history.pushState({}, '', '/reports');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  });
+  await expect(page.getByRole('heading', { name: 'Reports & findings' })).toBeVisible();
+  await expect(page.getByText('Small models, controlled conditions')).toBeVisible();
+  await context.setOffline(false);
+});
+
 test('all routes disclose demo data, fit the viewport and meet automated WCAG checks', async ({
   page,
 }, testInfo) => {
   const apiRequests: string[] = [];
   page.on('request', (request) => {
-    if (/\/api\/|localhost:8000|127\.0\.0\.1:8000/.test(request.url()))
+    const url = new URL(request.url());
+    if (
+      /^\/api(?:\/|$)/.test(url.pathname) ||
+      (['localhost', '127.0.0.1'].includes(url.hostname) && url.port === '8000')
+    )
       apiRequests.push(request.url());
   });
   for (const route of routes) {

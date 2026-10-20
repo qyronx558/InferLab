@@ -14,9 +14,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { PageHeading } from '@/components/PageHeading';
 import { MetricCard } from '@/components/MetricCard';
 import { ExperimentTable } from '@/components/ExperimentTable';
-import { demoExperiments, demoModels } from '@/data/demo';
+import { useDemoData } from '@/api/hooks';
+import { useWorkerHeartbeatQuery } from '@/api/hooks';
 
 export function Overview() {
+  const { demoExperiments, demoModels } = useDemoData();
+  const worker = useWorkerHeartbeatQuery();
   return (
     <>
       <PageHeading
@@ -89,11 +92,11 @@ export function Overview() {
                   <div className="bar-track">
                     <div
                       className="bar"
-                      style={{ width: `${model.throughput * 2}%`, background: model.color }}
+                      style={{ width: `${(model.throughput ?? 0) * 2}%`, background: model.color }}
                     />
                   </div>
                   <span className="text-right font-mono text-xs">
-                    {model.throughput.toFixed(1)}
+                    {model.throughput?.toFixed(1) ?? 'Unavailable'}
                   </span>
                 </div>
               ))}
@@ -132,7 +135,11 @@ export function Overview() {
               </div>
               <div>
                 <dt>Execution</dt>
-                <dd className="text-slate-600">Preview only</dd>
+                <dd className="text-slate-600">
+                  {worker.data?.state === 'complete'
+                    ? `${worker.data.data.availability} (demo)`
+                    : 'Unavailable (demo)'}
+                </dd>
               </div>
             </dl>
             <Link to="/methodology" className="inline-link">

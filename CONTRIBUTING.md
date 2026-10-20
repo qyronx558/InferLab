@@ -61,11 +61,19 @@ Add focused tests for changed behavior, boundaries and failures; avoid tests tha
 only restate implementation. Python tests go in `tests/` and run with
 `uv run --locked pytest -m "not gpu"`. Frontend unit tests go beside source as
 `*.test.ts` or `*.test.tsx` and run with `npm.cmd test`; Vitest uses happy-dom on
-CPU for DOM/keyboard interactions. Six dashboard interaction tests and Python's
-three smoke tests run without a backend. Empty suites, collection errors and test
+CPU for DOM/keyboard interactions. Dashboard/query tests and Python contract/smoke
+tests run without a backend. Empty suites, collection errors and test
 failures fail CI. Optional browser accessibility/layout checks live in
 `apps/web/e2e` and run with `npm.cmd run test:e2e` after installing Chromium;
 see `docs/DESIGN-SYSTEM.md`.
+
+Pydantic is authoritative for wire contracts. After edits to contracts or the
+source JSON fixtures, run `npm.cmd run contracts:generate`, review both generated
+TypeScript files and `contracts/openapi.json`, then run `npm.cmd run contracts:check`.
+Commit those artifacts together. Do not hand-edit generated types, coerce missing
+measurements to zero, mix job phase with service availability, or calculate
+benchmark summaries in an adapter. See `docs/CONTRACTS.md` for constraints and the
+runtime-validation boundary required before adding a live API client.
 
 Mock engine/network interfaces; do not contact Ollama, llama.cpp, paid APIs or cloud
 accounts from unit tests. No models, CUDA, GPU runner or personal evaluation data

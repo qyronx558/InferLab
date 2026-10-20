@@ -55,6 +55,8 @@ export function AppShell() {
               <option value="empty">Empty</option>
               <option value="error">Error</option>
               <option value="loading">Loading</option>
+              <option value="unavailable">Unavailable</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </label>
           <Outlet />
