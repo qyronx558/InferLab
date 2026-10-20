@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "inferlab-core"
 version = "0.1.0"
-description = "Owner-authored InferLab benchmark logic (package skeleton only)"
+description = "InferLab CPU-only metric helpers and benchmark foundations"
 requires-python = ">=3.12,<3.13"
 dependencies = []
 

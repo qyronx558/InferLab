@@ -1,1 +1,1 @@
-"""InferLab core package. Benchmark algorithms are reserved for the owner."""
+"""InferLab core: pure metric helpers; inference execution is not implemented."""
