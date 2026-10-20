@@ -10,9 +10,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { StatusBadge } from './StatusBadge';
-import { demoExperiments } from '@/data/demo';
+import type { ExperimentRow } from '@/data/demo';
 
-export function ExperimentTable({ rows = demoExperiments }: { rows?: typeof demoExperiments }) {
+export function ExperimentTable({ rows }: { rows: ExperimentRow[] }) {
   return (
     <div className="table-scroll" role="region" aria-label="Demo experiments table" tabIndex={0}>
       <Table>

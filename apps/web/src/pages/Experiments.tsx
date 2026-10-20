@@ -4,15 +4,16 @@ import { PageHeading } from '@/components/PageHeading';
 import { ExperimentTable } from '@/components/ExperimentTable';
 import { EmptyState } from '@/components/EmptyState';
 import { Button } from '@/components/ui/button';
-import { demoExperiments } from '@/data/demo';
+import { useDemoData } from '@/api/hooks';
 
 export function Experiments() {
+  const { demoExperiments } = useDemoData();
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('All statuses');
+  const [status, setStatus] = useState('');
   const rows = demoExperiments.filter(
     (row) =>
       `${row.name} ${row.model} ${row.id}`.toLowerCase().includes(search.toLowerCase()) &&
-      (status === 'All statuses' || row.status === status),
+      (!status || row.status === status),
   );
   return (
     <>
@@ -46,18 +47,28 @@ export function Experiments() {
               value={status}
               onChange={(e) => setStatus(e.target.value)}
             >
-              {['All statuses', 'Completed', 'Running', 'Queued', 'Failed'].map((value) => (
-                <option key={value}>{value}</option>
+              {[
+                ['', 'All statuses'],
+                ['complete', 'Completed'],
+                ['running', 'Running'],
+                ['pending', 'Pending'],
+                ['failed', 'Failed'],
+                ['cancelled', 'Cancelled'],
+                ['unavailable', 'Unavailable'],
+              ].map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </label>
-          {(search || status !== 'All statuses') && (
+          {(search || status) && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => {
                 setSearch('');
-                setStatus('All statuses');
+                setStatus('');
               }}
             >
               <X size={14} aria-hidden="true" />
@@ -74,7 +85,7 @@ export function Experiments() {
           <EmptyState
             onReset={() => {
               setSearch('');
-              setStatus('All statuses');
+              setStatus('');
             }}
           />
         )}

@@ -8,62 +8,65 @@ import { Models } from '@/pages/Models';
 import { Reports } from '@/pages/Reports';
 import { Methodology } from '@/pages/Methodology';
 import { NotFound } from '@/pages/NotFound';
+import { MockQueryProvider } from '@/api/MockQueryProvider';
 
 export function AppRoutes() {
   return (
-    <Routes>
-      <Route element={<AppShell />}>
-        <Route
-          index
-          element={
-            <PreviewState>
-              <Overview />
-            </PreviewState>
-          }
-        />
-        <Route
-          path="experiments"
-          element={
-            <PreviewState>
-              <Experiments />
-            </PreviewState>
-          }
-        />
-        <Route
-          path="compare"
-          element={
-            <PreviewState>
-              <Compare />
-            </PreviewState>
-          }
-        />
-        <Route
-          path="models"
-          element={
-            <PreviewState>
-              <Models />
-            </PreviewState>
-          }
-        />
-        <Route
-          path="reports"
-          element={
-            <PreviewState>
-              <Reports />
-            </PreviewState>
-          }
-        />
-        <Route
-          path="methodology"
-          element={
-            <PreviewState>
-              <Methodology />
-            </PreviewState>
-          }
-        />
-        <Route path="*" element={<NotFound />} />
-      </Route>
-    </Routes>
+    <MockQueryProvider>
+      <Routes>
+        <Route element={<AppShell />}>
+          <Route
+            index
+            element={
+              <PreviewState>
+                <Overview />
+              </PreviewState>
+            }
+          />
+          <Route
+            path="experiments"
+            element={
+              <PreviewState>
+                <Experiments />
+              </PreviewState>
+            }
+          />
+          <Route
+            path="compare"
+            element={
+              <PreviewState>
+                <Compare />
+              </PreviewState>
+            }
+          />
+          <Route
+            path="models"
+            element={
+              <PreviewState>
+                <Models />
+              </PreviewState>
+            }
+          />
+          <Route
+            path="reports"
+            element={
+              <PreviewState>
+                <Reports />
+              </PreviewState>
+            }
+          />
+          <Route
+            path="methodology"
+            element={
+              <PreviewState>
+                <Methodology />
+              </PreviewState>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </MockQueryProvider>
   );
 }
 

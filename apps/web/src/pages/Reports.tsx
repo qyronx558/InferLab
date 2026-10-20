@@ -4,9 +4,10 @@ import { PageHeading } from '@/components/PageHeading';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/EmptyState';
-import { demoReports } from '@/data/demo';
+import { useDemoData } from '@/api/hooks';
 
 export function Reports() {
+  const { demoReports } = useDemoData();
   const [params, setParams] = useSearchParams();
   const experiment = params.get('experiment');
   const reports = demoReports.filter(
@@ -14,9 +15,18 @@ export function Reports() {
   );
   const download = () => {
     const url = URL.createObjectURL(
-      new Blob([JSON.stringify({ label: 'DEMO DATA', synthetic: true, reports }, null, 2)], {
-        type: 'application/json',
-      }),
+      new Blob(
+        [
+          JSON.stringify(
+            { label: 'DEMO DATA', synthetic: true, reports: reports.map((report) => report.wire) },
+            null,
+            2,
+          ),
+        ],
+        {
+          type: 'application/json',
+        },
+      ),
     );
     const anchor = document.createElement('a');
     anchor.href = url;

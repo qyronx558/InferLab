@@ -1,7 +1,7 @@
 # Workflows
 
 `ci.yml` checks pull requests, pushes to main and manual runs on a standard Ubuntu
-CPU runner. It installs from lockfiles, checks formatting/lint/types, builds the
+CPU runner. It installs from lockfiles, checks contract/fixture/type drift and formatting/lint/types, builds the
 frontend, runs unit tests, and checks the optional hook configuration/private keys.
 It has read-only repository permission, a 15-minute timeout and no deployment,
 model downloads, GPU access or repository secrets. Actions are pinned by commit.

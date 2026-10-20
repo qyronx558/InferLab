@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import { PageHeading } from '@/components/PageHeading';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { demoModels } from '@/data/demo';
+import { useDemoData } from '@/api/hooks';
 
 export function Models() {
+  const { demoModels } = useDemoData();
   return (
     <>
       <PageHeading

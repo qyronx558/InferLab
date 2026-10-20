@@ -11,6 +11,10 @@ coverage/
 htmlcov/
 package-lock.json
 uv.lock
+contracts/openapi.json
+contracts/fixtures/
+apps/web/src/api/generated.ts
+apps/web/src/api/fixtures.generated.ts
 benchmark_artifacts/
 models/
 # Python uses Ruff; retain the reviewed product specifications as authored.

@@ -5,6 +5,8 @@ $ErrorActionPreference = "Stop"
 $workspaceRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $workspaceRoot
 try {
+    & npm.cmd run contracts:check
+    if ($LASTEXITCODE -ne 0) { throw "Contract/schema/type/fixture drift detected." }
     & npm.cmd run format:check
     if ($LASTEXITCODE -ne 0) { throw "Frontend/config formatting failed." }
     & npm.cmd run lint
