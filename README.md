@@ -7,22 +7,6 @@ the tutoring step. Every displayed result is labeled DEMO DATA. Real
 measurements, authentication, execution, database, publishing and cloud deployment
 are not implemented yet.
 
-## Layout
-
-```text
-apps/web/                  React/TypeScript + Tailwind + shadcn/ui demo dashboard
-apps/api/                  FastAPI health-only app (src/inferlab_api)
-contracts/                 Generated OpenAPI schemas and validated synthetic wire fixtures
-packages/inferlab_core/     Installable Python core with pure CPU metric helpers
-examples/                  Synthetic metric and toy-generation walkthrough
-worker/                    Worker placeholder; exits without executing jobs
-experiments/               Future safe experiment configurations
-tests/                     CPU-only metric, contract and API checks
-scripts/                   Windows PowerShell setup, run and check commands
-docs/                      Product and architecture specifications
-.github/workflows/         CPU-only lint, types, build and unit-test CI
-```
-
 ## Windows setup
 
 Install Node.js **22.13+ in the 22.x line, or 24.x**, npm **10 or 11**, and
