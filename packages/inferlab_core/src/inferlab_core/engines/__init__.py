@@ -9,6 +9,7 @@ from .errors import (
     EngineTimeoutError,
     ModelNotFoundError,
 )
+from .llama_cpp import LlamaCppEngine, LlamaServerConfig
 from .ollama import OllamaEngine
 from .protocol import (
     EngineHealth,
@@ -31,6 +32,8 @@ __all__ = [
     "GenerationMetadata",
     "GenerationRequest",
     "GenerationResult",
+    "LlamaCppEngine",
+    "LlamaServerConfig",
     "ModelInfo",
     "ModelNotFoundError",
     "OllamaEngine",
