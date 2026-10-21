@@ -3,8 +3,8 @@
 Local LLM inference benchmarking with a public, read-only portfolio of reviewed
 results. This is the dashboard design-system preview with engineering guardrails
 (rulebook Prompts 01-04), plus the explicitly authorized CPU metric helpers from
-the tutoring step. Every displayed result is labeled DEMO DATA. Real
-measurements, authentication, execution, database, publishing and cloud deployment
+the tutoring step and a standalone local Ollama HTTP transport. Every displayed result is labeled DEMO DATA. Real
+benchmark collection, authentication, job execution, database, publishing and cloud deployment
 are not implemented yet.
 
 ## Windows setup
@@ -131,6 +131,16 @@ uv run --locked python examples/metrics_walkthrough.py
 uv run --locked pytest tests/test_metrics.py
 ```
 
+The [Ollama transport guide](docs/OLLAMA.md) covers `EngineProtocol`, async generate
+and NDJSON streaming, health/model information, typed errors, timeout configuration
+and cancellation. The adapter requires an already installed local model and never
+pulls models. It is not wired into the worker, API or dashboard. Benchmark timing
+and calculations remain owner TODOs at this boundary. Run its CPU-only mocks with:
+
+```powershell
+uv run --locked pytest tests/test_ollama.py
+```
+
 ## Security and scope
 
 Development servers bind to loopback. Plain HTTP is for this health-only scaffold;
@@ -143,7 +153,7 @@ Never put secrets in `VITE_` variables: they become public bundle content. Keep
 model weights, databases, traces and `.env` files out of Git. Setup preserves
 existing `.env` files and does not modify experiments or model data. Dependency
 install/build hooks execute third-party code; review lockfile changes. No cloud
-keys, paid services, real model execution, Docker or hosted GPU jobs are included.
+keys, paid services, automatic model downloads, Docker or hosted GPU jobs are included.
 
 Read the [PRD](docs/PRD.md), [architecture](docs/ARCHITECTURE.md),
 [zero-cost ADR](docs/ADR-001-zero-cost.md), and
