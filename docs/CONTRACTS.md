@@ -6,6 +6,9 @@ queue, storage, authentication or new HTTP endpoints. FastAPI remains health-onl
 The contract layer does not execute core metrics or start the worker. Separately,
 the owner authorized CPU-only metric helpers; see [METRICS.md](METRICS.md).
 
+Pinned experiment configs, per-run `Result` provenance, YAML fixtures and their
+validation rules are described in [EXPERIMENT-SCHEMAS.md](EXPERIMENT-SCHEMAS.md).
+
 ## Source and generated artifacts
 
 | Artifact | Role |

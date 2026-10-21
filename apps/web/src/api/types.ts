@@ -8,6 +8,7 @@ export type ExperimentSubmitRequest = components['schemas']['ExperimentSubmitReq
 export type SubmissionReceipt = components['schemas']['SubmissionReceipt'];
 export type Job = components['schemas']['Job'];
 export type RunMetrics = components['schemas']['RunMetrics'];
+export type Result = components['schemas']['Result'];
 export type Summary = components['schemas']['Summary'];
 export type PublishedReport = components['schemas']['PublishedReport'];
 export type WorkerHeartbeat = components['schemas']['WorkerHeartbeat'];

@@ -64,7 +64,8 @@ export const mockFixtures = {
           "id": "synthetic-v1",
           "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
           "data_policy": "synthetic",
-          "license_name": "Synthetic demo fixture"
+          "license_name": "Synthetic demo fixture",
+          "prompt_id": "synthetic-prompt-v1"
         }
       ]
     }
@@ -95,7 +96,15 @@ export const mockFixtures = {
             "concurrency": 1,
             "timeout_seconds": 600,
             "gpu_device_id": "gpu-0",
-            "gpu_layers": null
+            "gpu_layers": null,
+            "experiment_id": "EXP-006",
+            "engine_version": "demo-only",
+            "engine_build": "demo-build",
+            "seed_supported": true,
+            "model_revision": "demo-revision",
+            "model_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+            "quantization": "Q4_K_M",
+            "prompt_id": "synthetic-prompt-v1"
           },
           "provenance": {
             "engine": {
@@ -123,13 +132,16 @@ export const mockFixtures = {
               "id": "synthetic-v1",
               "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
               "data_policy": "synthetic",
-              "license_name": "Synthetic demo fixture"
+              "license_name": "Synthetic demo fixture",
+              "prompt_id": "synthetic-prompt-v1"
             },
             "hardware": {
               "device_name": "NVIDIA RTX 4060 (demo)",
               "device_memory_mib": 8192,
               "driver_version": "demo-driver",
-              "gpu_settings": "Demo only; no connected device"
+              "gpu_settings": "Demo only; no connected device",
+              "gpu_device_id": "gpu-0",
+              "gpu_layers": null
             },
             "methodology_version": "demo-v1"
           },
@@ -202,7 +214,15 @@ export const mockFixtures = {
             "concurrency": 1,
             "timeout_seconds": 600,
             "gpu_device_id": "gpu-0",
-            "gpu_layers": null
+            "gpu_layers": null,
+            "experiment_id": "EXP-005",
+            "engine_version": "demo-only",
+            "engine_build": "demo-build",
+            "seed_supported": true,
+            "model_revision": "demo-revision",
+            "model_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+            "quantization": "Q4_K_M",
+            "prompt_id": "synthetic-prompt-v1"
           },
           "provenance": {
             "engine": {
@@ -230,13 +250,16 @@ export const mockFixtures = {
               "id": "synthetic-v1",
               "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
               "data_policy": "synthetic",
-              "license_name": "Synthetic demo fixture"
+              "license_name": "Synthetic demo fixture",
+              "prompt_id": "synthetic-prompt-v1"
             },
             "hardware": {
               "device_name": "NVIDIA RTX 4060 (demo)",
               "device_memory_mib": 8192,
               "driver_version": "demo-driver",
-              "gpu_settings": "Demo only; no connected device"
+              "gpu_settings": "Demo only; no connected device",
+              "gpu_device_id": "gpu-0",
+              "gpu_layers": null
             },
             "methodology_version": "demo-v1"
           },
@@ -309,7 +332,15 @@ export const mockFixtures = {
             "concurrency": 1,
             "timeout_seconds": 600,
             "gpu_device_id": "gpu-0",
-            "gpu_layers": null
+            "gpu_layers": null,
+            "experiment_id": "EXP-004",
+            "engine_version": "demo-only",
+            "engine_build": "demo-build",
+            "seed_supported": true,
+            "model_revision": "demo-revision",
+            "model_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+            "quantization": "Q4_K_M",
+            "prompt_id": "synthetic-prompt-v1"
           },
           "provenance": {
             "engine": {
@@ -337,13 +368,16 @@ export const mockFixtures = {
               "id": "synthetic-v1",
               "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
               "data_policy": "synthetic",
-              "license_name": "Synthetic demo fixture"
+              "license_name": "Synthetic demo fixture",
+              "prompt_id": "synthetic-prompt-v1"
             },
             "hardware": {
               "device_name": "NVIDIA RTX 4060 (demo)",
               "device_memory_mib": 8192,
               "driver_version": "demo-driver",
-              "gpu_settings": "Demo only; no connected device"
+              "gpu_settings": "Demo only; no connected device",
+              "gpu_device_id": "gpu-0",
+              "gpu_layers": null
             },
             "methodology_version": "demo-v1"
           },
@@ -416,7 +450,15 @@ export const mockFixtures = {
             "concurrency": 1,
             "timeout_seconds": 600,
             "gpu_device_id": "gpu-0",
-            "gpu_layers": null
+            "gpu_layers": null,
+            "experiment_id": "EXP-003",
+            "engine_version": "demo-only",
+            "engine_build": "demo-build",
+            "seed_supported": true,
+            "model_revision": "demo-revision",
+            "model_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+            "quantization": "Q4_K_M",
+            "prompt_id": "synthetic-prompt-v1"
           },
           "provenance": {
             "engine": {
@@ -444,13 +486,16 @@ export const mockFixtures = {
               "id": "synthetic-v1",
               "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
               "data_policy": "synthetic",
-              "license_name": "Synthetic demo fixture"
+              "license_name": "Synthetic demo fixture",
+              "prompt_id": "synthetic-prompt-v1"
             },
             "hardware": {
               "device_name": "NVIDIA RTX 4060 (demo)",
               "device_memory_mib": 8192,
               "driver_version": "demo-driver",
-              "gpu_settings": "Demo only; no connected device"
+              "gpu_settings": "Demo only; no connected device",
+              "gpu_device_id": "gpu-0",
+              "gpu_layers": null
             },
             "methodology_version": "demo-v1"
           },
@@ -521,7 +566,15 @@ export const mockFixtures = {
             "concurrency": 1,
             "timeout_seconds": 600,
             "gpu_device_id": "gpu-0",
-            "gpu_layers": null
+            "gpu_layers": null,
+            "experiment_id": "EXP-002",
+            "engine_version": "demo-only",
+            "engine_build": "demo-build",
+            "seed_supported": true,
+            "model_revision": "demo-revision",
+            "model_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+            "quantization": "Q4_K_M",
+            "prompt_id": "synthetic-prompt-v1"
           },
           "provenance": {
             "engine": {
@@ -549,13 +602,16 @@ export const mockFixtures = {
               "id": "synthetic-v1",
               "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
               "data_policy": "synthetic",
-              "license_name": "Synthetic demo fixture"
+              "license_name": "Synthetic demo fixture",
+              "prompt_id": "synthetic-prompt-v1"
             },
             "hardware": {
               "device_name": "NVIDIA RTX 4060 (demo)",
               "device_memory_mib": 8192,
               "driver_version": "demo-driver",
-              "gpu_settings": "Demo only; no connected device"
+              "gpu_settings": "Demo only; no connected device",
+              "gpu_device_id": "gpu-0",
+              "gpu_layers": null
             },
             "methodology_version": "demo-v1"
           },
@@ -626,7 +682,15 @@ export const mockFixtures = {
             "concurrency": 1,
             "timeout_seconds": 600,
             "gpu_device_id": "gpu-0",
-            "gpu_layers": null
+            "gpu_layers": null,
+            "experiment_id": "EXP-001",
+            "engine_version": "demo-only",
+            "engine_build": "demo-build",
+            "seed_supported": true,
+            "model_revision": "demo-revision",
+            "model_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+            "quantization": "Q4_K_M",
+            "prompt_id": "synthetic-prompt-v1"
           },
           "provenance": {
             "engine": {
@@ -654,13 +718,16 @@ export const mockFixtures = {
               "id": "synthetic-v1",
               "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
               "data_policy": "synthetic",
-              "license_name": "Synthetic demo fixture"
+              "license_name": "Synthetic demo fixture",
+              "prompt_id": "synthetic-prompt-v1"
             },
             "hardware": {
               "device_name": "NVIDIA RTX 4060 (demo)",
               "device_memory_mib": 8192,
               "driver_version": "demo-driver",
-              "gpu_settings": "Demo only; no connected device"
+              "gpu_settings": "Demo only; no connected device",
+              "gpu_device_id": "gpu-0",
+              "gpu_layers": null
             },
             "methodology_version": "demo-v1"
           },
@@ -1075,7 +1142,15 @@ export const mockFixtures = {
           "concurrency": 1,
           "timeout_seconds": 600,
           "gpu_device_id": "gpu-0",
-          "gpu_layers": null
+          "gpu_layers": null,
+          "experiment_id": "EXP-006",
+          "engine_version": "demo-only",
+          "engine_build": "demo-build",
+          "seed_supported": true,
+          "model_revision": "demo-revision",
+          "model_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+          "quantization": "Q4_K_M",
+          "prompt_id": "synthetic-prompt-v1"
         },
         "provenance": {
           "engine": {
@@ -1103,13 +1178,16 @@ export const mockFixtures = {
             "id": "synthetic-v1",
             "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
             "data_policy": "synthetic",
-            "license_name": "Synthetic demo fixture"
+            "license_name": "Synthetic demo fixture",
+            "prompt_id": "synthetic-prompt-v1"
           },
           "hardware": {
             "device_name": "NVIDIA RTX 4060 (demo)",
             "device_memory_mib": 8192,
             "driver_version": "demo-driver",
-            "gpu_settings": "Demo only; no connected device"
+            "gpu_settings": "Demo only; no connected device",
+            "gpu_device_id": "gpu-0",
+            "gpu_layers": null
           },
           "methodology_version": "demo-v1"
         },
@@ -1220,7 +1298,15 @@ export const mockFixtures = {
           "concurrency": 1,
           "timeout_seconds": 600,
           "gpu_device_id": "gpu-0",
-          "gpu_layers": null
+          "gpu_layers": null,
+          "experiment_id": "EXP-005",
+          "engine_version": "demo-only",
+          "engine_build": "demo-build",
+          "seed_supported": true,
+          "model_revision": "demo-revision",
+          "model_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+          "quantization": "Q4_K_M",
+          "prompt_id": "synthetic-prompt-v1"
         },
         "provenance": {
           "engine": {
@@ -1248,13 +1334,16 @@ export const mockFixtures = {
             "id": "synthetic-v1",
             "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
             "data_policy": "synthetic",
-            "license_name": "Synthetic demo fixture"
+            "license_name": "Synthetic demo fixture",
+            "prompt_id": "synthetic-prompt-v1"
           },
           "hardware": {
             "device_name": "NVIDIA RTX 4060 (demo)",
             "device_memory_mib": 8192,
             "driver_version": "demo-driver",
-            "gpu_settings": "Demo only; no connected device"
+            "gpu_settings": "Demo only; no connected device",
+            "gpu_device_id": "gpu-0",
+            "gpu_layers": null
           },
           "methodology_version": "demo-v1"
         },
@@ -1365,7 +1454,15 @@ export const mockFixtures = {
           "concurrency": 1,
           "timeout_seconds": 600,
           "gpu_device_id": "gpu-0",
-          "gpu_layers": null
+          "gpu_layers": null,
+          "experiment_id": "EXP-004",
+          "engine_version": "demo-only",
+          "engine_build": "demo-build",
+          "seed_supported": true,
+          "model_revision": "demo-revision",
+          "model_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+          "quantization": "Q4_K_M",
+          "prompt_id": "synthetic-prompt-v1"
         },
         "provenance": {
           "engine": {
@@ -1393,13 +1490,16 @@ export const mockFixtures = {
             "id": "synthetic-v1",
             "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
             "data_policy": "synthetic",
-            "license_name": "Synthetic demo fixture"
+            "license_name": "Synthetic demo fixture",
+            "prompt_id": "synthetic-prompt-v1"
           },
           "hardware": {
             "device_name": "NVIDIA RTX 4060 (demo)",
             "device_memory_mib": 8192,
             "driver_version": "demo-driver",
-            "gpu_settings": "Demo only; no connected device"
+            "gpu_settings": "Demo only; no connected device",
+            "gpu_device_id": "gpu-0",
+            "gpu_layers": null
           },
           "methodology_version": "demo-v1"
         },
@@ -1519,7 +1619,15 @@ export const mockFixtures = {
       "concurrency": 1,
       "timeout_seconds": 600,
       "gpu_device_id": "gpu-0",
-      "gpu_layers": null
+      "gpu_layers": null,
+      "experiment_id": "EXP-007",
+      "engine_version": "demo-only",
+      "engine_build": "demo-build",
+      "seed_supported": true,
+      "model_revision": "demo-revision",
+      "model_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "quantization": "Q4_K_M",
+      "prompt_id": "synthetic-prompt-v1"
     }
   },
   "submit_response": {
@@ -1614,5 +1722,357 @@ export const mockFixtures = {
     "complete",
     "failed",
     "cancelled"
-  ]
+  ],
+  "results": {
+    "state": "complete",
+    "label": "DEMO DATA",
+    "data": [
+      {
+        "schema_version": "1.0",
+        "experiment_id": "EXP-006",
+        "data_kind": "demo",
+        "label": "DEMO DATA",
+        "config": {
+          "engine_id": "ollama",
+          "model_id": "llama",
+          "workload_id": "synthetic-v1",
+          "condition": "warm",
+          "context_tokens": 2048,
+          "input_token_budget": 512,
+          "max_output_tokens": 256,
+          "sampling": {
+            "temperature": 0,
+            "top_p": 1,
+            "seed": 42
+          },
+          "warmups": 2,
+          "repetitions": 1,
+          "concurrency": 1,
+          "timeout_seconds": 600,
+          "gpu_device_id": "gpu-0",
+          "gpu_layers": null,
+          "experiment_id": "EXP-006",
+          "engine_version": "demo-only",
+          "engine_build": "demo-build",
+          "seed_supported": true,
+          "model_revision": "demo-revision",
+          "model_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+          "quantization": "Q4_K_M",
+          "prompt_id": "synthetic-prompt-v1"
+        },
+        "provenance": {
+          "engine": {
+            "id": "ollama",
+            "name": "Ollama",
+            "version": "demo-only",
+            "build": "demo-build",
+            "availability": "available",
+            "seed_supported": true
+          },
+          "model": {
+            "id": "llama",
+            "name": "Llama 3.2",
+            "parameter_size": "3B",
+            "revision": "demo-revision",
+            "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+            "quantization": "Q4_K_M",
+            "engine_ids": [
+              "ollama"
+            ],
+            "max_context_tokens": 8192,
+            "license_name": "DEMO placeholder; review model license"
+          },
+          "workload": {
+            "id": "synthetic-v1",
+            "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+            "data_policy": "synthetic",
+            "license_name": "Synthetic demo fixture",
+            "prompt_id": "synthetic-prompt-v1"
+          },
+          "hardware": {
+            "device_name": "NVIDIA RTX 4060 (demo)",
+            "device_memory_mib": 8192,
+            "driver_version": "demo-driver",
+            "gpu_settings": "Demo only; no connected device",
+            "gpu_device_id": "gpu-0",
+            "gpu_layers": null
+          },
+          "methodology_version": "demo-v1"
+        },
+        "run": {
+          "id": "RUN-006",
+          "experiment_id": "EXP-006",
+          "attempt": 1,
+          "state": "complete",
+          "condition": "warm",
+          "kind": "measured",
+          "repetition": 0,
+          "recorded_at": "2026-10-18T09:01:00Z",
+          "input_tokens": 128,
+          "output_tokens": 256,
+          "ttft": {
+            "value": 142,
+            "unavailable_reason": null,
+            "unit": "ms"
+          },
+          "request_latency": {
+            "value": 1500,
+            "unavailable_reason": null,
+            "unit": "ms"
+          },
+          "decode_throughput": {
+            "value": 41.2,
+            "unavailable_reason": null,
+            "unit": "tok/s"
+          },
+          "peak_vram": {
+            "value": 2458,
+            "unavailable_reason": null,
+            "unit": "MiB"
+          },
+          "quality": {
+            "value": null,
+            "unavailable_reason": "unsupported",
+            "unit": "score"
+          },
+          "error_code": null
+        },
+        "errors": []
+      },
+      {
+        "schema_version": "1.0",
+        "experiment_id": "EXP-006",
+        "data_kind": "demo",
+        "label": "DEMO DATA",
+        "config": {
+          "engine_id": "ollama",
+          "model_id": "llama",
+          "workload_id": "synthetic-v1",
+          "condition": "warm",
+          "context_tokens": 2048,
+          "input_token_budget": 512,
+          "max_output_tokens": 256,
+          "sampling": {
+            "temperature": 0,
+            "top_p": 1,
+            "seed": 42
+          },
+          "warmups": 2,
+          "repetitions": 1,
+          "concurrency": 1,
+          "timeout_seconds": 600,
+          "gpu_device_id": "gpu-0",
+          "gpu_layers": null,
+          "experiment_id": "EXP-006",
+          "engine_version": "demo-only",
+          "engine_build": "demo-build",
+          "seed_supported": true,
+          "model_revision": "demo-revision",
+          "model_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+          "quantization": "Q4_K_M",
+          "prompt_id": "synthetic-prompt-v1"
+        },
+        "provenance": {
+          "engine": {
+            "id": "ollama",
+            "name": "Ollama",
+            "version": "demo-only",
+            "build": "demo-build",
+            "availability": "available",
+            "seed_supported": true
+          },
+          "model": {
+            "id": "llama",
+            "name": "Llama 3.2",
+            "parameter_size": "3B",
+            "revision": "demo-revision",
+            "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+            "quantization": "Q4_K_M",
+            "engine_ids": [
+              "ollama"
+            ],
+            "max_context_tokens": 8192,
+            "license_name": "DEMO placeholder; review model license"
+          },
+          "workload": {
+            "id": "synthetic-v1",
+            "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+            "data_policy": "synthetic",
+            "license_name": "Synthetic demo fixture",
+            "prompt_id": "synthetic-prompt-v1"
+          },
+          "hardware": {
+            "device_name": "NVIDIA RTX 4060 (demo)",
+            "device_memory_mib": 8192,
+            "driver_version": "demo-driver",
+            "gpu_settings": "Demo only; no connected device",
+            "gpu_device_id": "gpu-0",
+            "gpu_layers": null
+          },
+          "methodology_version": "demo-v1"
+        },
+        "run": {
+          "id": "RUN-demo-failed",
+          "experiment_id": "EXP-006",
+          "attempt": 1,
+          "state": "failed",
+          "condition": "warm",
+          "kind": "measured",
+          "repetition": 0,
+          "recorded_at": "2026-10-18T09:01:00Z",
+          "input_tokens": null,
+          "output_tokens": null,
+          "ttft": {
+            "value": null,
+            "unavailable_reason": "not_measured",
+            "unit": "ms"
+          },
+          "request_latency": {
+            "value": null,
+            "unavailable_reason": "not_measured",
+            "unit": "ms"
+          },
+          "decode_throughput": {
+            "value": null,
+            "unavailable_reason": "not_measured",
+            "unit": "tok/s"
+          },
+          "peak_vram": {
+            "value": null,
+            "unavailable_reason": "not_measured",
+            "unit": "MiB"
+          },
+          "quality": {
+            "value": null,
+            "unavailable_reason": "not_measured",
+            "unit": "score"
+          },
+          "error_code": "timeout"
+        },
+        "errors": [
+          {
+            "code": "timeout",
+            "stage": "generation"
+          }
+        ]
+      },
+      {
+        "schema_version": "1.0",
+        "experiment_id": "EXP-006",
+        "data_kind": "demo",
+        "label": "DEMO DATA",
+        "config": {
+          "engine_id": "ollama",
+          "model_id": "llama",
+          "workload_id": "synthetic-v1",
+          "condition": "warm",
+          "context_tokens": 2048,
+          "input_token_budget": 512,
+          "max_output_tokens": 256,
+          "sampling": {
+            "temperature": 0,
+            "top_p": 1,
+            "seed": 42
+          },
+          "warmups": 2,
+          "repetitions": 1,
+          "concurrency": 1,
+          "timeout_seconds": 600,
+          "gpu_device_id": "gpu-0",
+          "gpu_layers": null,
+          "experiment_id": "EXP-006",
+          "engine_version": "demo-only",
+          "engine_build": "demo-build",
+          "seed_supported": true,
+          "model_revision": "demo-revision",
+          "model_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+          "quantization": "Q4_K_M",
+          "prompt_id": "synthetic-prompt-v1"
+        },
+        "provenance": {
+          "engine": {
+            "id": "ollama",
+            "name": "Ollama",
+            "version": "demo-only",
+            "build": "demo-build",
+            "availability": "available",
+            "seed_supported": true
+          },
+          "model": {
+            "id": "llama",
+            "name": "Llama 3.2",
+            "parameter_size": "3B",
+            "revision": "demo-revision",
+            "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+            "quantization": "Q4_K_M",
+            "engine_ids": [
+              "ollama"
+            ],
+            "max_context_tokens": 8192,
+            "license_name": "DEMO placeholder; review model license"
+          },
+          "workload": {
+            "id": "synthetic-v1",
+            "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+            "data_policy": "synthetic",
+            "license_name": "Synthetic demo fixture",
+            "prompt_id": "synthetic-prompt-v1"
+          },
+          "hardware": {
+            "device_name": "NVIDIA RTX 4060 (demo)",
+            "device_memory_mib": 8192,
+            "driver_version": "demo-driver",
+            "gpu_settings": "Demo only; no connected device",
+            "gpu_device_id": "gpu-0",
+            "gpu_layers": null
+          },
+          "methodology_version": "demo-v1"
+        },
+        "run": {
+          "id": "RUN-demo-cancelled",
+          "experiment_id": "EXP-006",
+          "attempt": 1,
+          "state": "cancelled",
+          "condition": "warm",
+          "kind": "measured",
+          "repetition": 0,
+          "recorded_at": "2026-10-18T09:01:00Z",
+          "input_tokens": null,
+          "output_tokens": null,
+          "ttft": {
+            "value": null,
+            "unavailable_reason": "not_measured",
+            "unit": "ms"
+          },
+          "request_latency": {
+            "value": null,
+            "unavailable_reason": "not_measured",
+            "unit": "ms"
+          },
+          "decode_throughput": {
+            "value": null,
+            "unavailable_reason": "not_measured",
+            "unit": "tok/s"
+          },
+          "peak_vram": {
+            "value": null,
+            "unavailable_reason": "not_measured",
+            "unit": "MiB"
+          },
+          "quality": {
+            "value": null,
+            "unavailable_reason": "not_measured",
+            "unit": "score"
+          },
+          "error_code": "cancelled"
+        },
+        "errors": [
+          {
+            "code": "cancelled",
+            "stage": "generation"
+          }
+        ]
+      }
+    ]
+  }
 } as const satisfies ContractCatalog;

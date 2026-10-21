@@ -1,0 +1,26 @@
+# DEMO DATA: synthetic identities, checksums, hardware and measurements.
+engine_id: ollama
+model_id: llama
+workload_id: synthetic-v1
+condition: warm
+context_tokens: 2048
+input_token_budget: 512
+max_output_tokens: 256
+sampling:
+  temperature: 0.0
+  top_p: 1.0
+  seed: 42
+warmups: 2
+repetitions: 1
+concurrency: 1
+timeout_seconds: 600
+gpu_device_id: gpu-0
+gpu_layers: null
+experiment_id: EXP-006
+engine_version: demo-only
+engine_build: demo-build
+seed_supported: true
+model_revision: demo-revision
+model_sha256: '1111111111111111111111111111111111111111111111111111111111111111'
+quantization: Q4_K_M
+prompt_id: synthetic-prompt-v1
