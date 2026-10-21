@@ -141,6 +141,15 @@ and calculations remain owner TODOs at this boundary. Run its CPU-only mocks wit
 uv run --locked pytest tests/test_ollama.py
 ```
 
+The [llama-server transport guide](docs/LLAMA-CPP.md) adds the same protocol for a
+manually started local llama.cpp server, with validated GPU-layer/context startup
+settings and SSE streaming. InferLab does not download or launch the binary. Run
+the shared HTTP parity tests with:
+
+```powershell
+uv run --locked pytest tests/test_engine_parity.py tests/test_llama_cpp.py
+```
+
 ## Security and scope
 
 Development servers bind to loopback. Plain HTTP is for this health-only scaffold;
