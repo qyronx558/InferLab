@@ -7,6 +7,8 @@ dependencies = ["inferlab-api==0.1.0", "inferlab-core==0.1.0", "inferlab-worker=
 
 [dependency-groups]
 dev = [
+  "pyyaml>=6.0.3,<7",
+  "types-pyyaml>=6.0.12,<7",
   "httpx2>=2.15.1,<2.16",
   "pytest>=8.4.0,<9",
   "ruff>=0.14.0,<0.15",

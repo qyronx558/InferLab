@@ -117,6 +117,38 @@
         "title": "Available[list[PublishedReport]]",
         "type": "object"
       },
+      "Available_list_Result__": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Result"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "label": {
+            "enum": [
+              "DEMO DATA",
+              "MEASURED DATA"
+            ],
+            "title": "Label",
+            "type": "string"
+          },
+          "state": {
+            "const": "complete",
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "label",
+          "data"
+        ],
+        "title": "Available[list[Result]]",
+        "type": "object"
+      },
       "Available_list_RunMetrics__": {
         "additionalProperties": false,
         "properties": {
@@ -225,6 +257,9 @@
           "reports": {
             "$ref": "#/components/schemas/Resource_list_PublishedReport__"
           },
+          "results": {
+            "$ref": "#/components/schemas/Resource_list_Result__"
+          },
           "runs": {
             "$ref": "#/components/schemas/Resource_list_RunMetrics__"
           },
@@ -255,6 +290,7 @@
           "registry",
           "experiments",
           "runs",
+          "results",
           "summaries",
           "reports",
           "worker",
@@ -381,12 +417,29 @@
             "title": "Context Tokens",
             "type": "integer"
           },
+          "engine_build": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Engine Build",
+            "type": "string"
+          },
           "engine_id": {
             "enum": [
               "ollama",
               "llama.cpp"
             ],
             "title": "Engine Id",
+            "type": "string"
+          },
+          "engine_version": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Engine Version",
+            "type": "string"
+          },
+          "experiment_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Experiment Id",
             "type": "string"
           },
           "gpu_device_id": {
@@ -424,6 +477,31 @@
             "title": "Model Id",
             "type": "string"
           },
+          "model_revision": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Model Revision",
+            "type": "string"
+          },
+          "model_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Model Sha256",
+            "type": "string"
+          },
+          "prompt_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Prompt Id",
+            "type": "string"
+          },
+          "quantization": {
+            "enum": [
+              "Q4_K_M",
+              "Q5_K_M",
+              "Q8_0",
+              "FP16"
+            ],
+            "title": "Quantization",
+            "type": "string"
+          },
           "repetitions": {
             "maximum": 20,
             "minimum": 1,
@@ -432,6 +510,10 @@
           },
           "sampling": {
             "$ref": "#/components/schemas/Sampling"
+          },
+          "seed_supported": {
+            "title": "Seed Supported",
+            "type": "boolean"
           },
           "timeout_seconds": {
             "maximum": 3600,
@@ -452,9 +534,17 @@
           }
         },
         "required": [
+          "experiment_id",
           "engine_id",
+          "engine_version",
+          "engine_build",
+          "seed_supported",
           "model_id",
+          "model_revision",
+          "model_sha256",
+          "quantization",
           "workload_id",
+          "prompt_id",
           "condition",
           "context_tokens",
           "input_token_budget",
@@ -547,6 +637,24 @@
             "title": "Driver Version",
             "type": "string"
           },
+          "gpu_device_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Gpu Device Id",
+            "type": "string"
+          },
+          "gpu_layers": {
+            "anyOf": [
+              {
+                "maximum": 200,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gpu Layers"
+          },
           "gpu_settings": {
             "maxLength": 160,
             "minLength": 1,
@@ -555,6 +663,8 @@
           }
         },
         "required": [
+          "gpu_device_id",
+          "gpu_layers",
           "device_name",
           "device_memory_mib",
           "driver_version",
@@ -1130,6 +1240,23 @@
           }
         ]
       },
+      "Resource_list_Result__": {
+        "discriminator": {
+          "mapping": {
+            "complete": "#/components/schemas/Available_list_Result__",
+            "unavailable": "#/components/schemas/Unavailable"
+          },
+          "propertyName": "state"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Available_list_Result__"
+          },
+          {
+            "$ref": "#/components/schemas/Unavailable"
+          }
+        ]
+      },
       "Resource_list_RunMetrics__": {
         "discriminator": {
           "mapping": {
@@ -1163,6 +1290,101 @@
             "$ref": "#/components/schemas/Unavailable"
           }
         ]
+      },
+      "Result": {
+        "additionalProperties": false,
+        "description": "One run's reproducible record, not a summary, execution request or publication.",
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/ExperimentConfig"
+          },
+          "data_kind": {
+            "enum": [
+              "demo",
+              "measured"
+            ],
+            "title": "Data Kind",
+            "type": "string"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ResultError"
+            },
+            "maxItems": 10,
+            "title": "Errors",
+            "type": "array"
+          },
+          "experiment_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "label": {
+            "enum": [
+              "DEMO DATA",
+              "MEASURED DATA"
+            ],
+            "title": "Label",
+            "type": "string"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance"
+          },
+          "run": {
+            "$ref": "#/components/schemas/RunMetrics"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "experiment_id",
+          "data_kind",
+          "label",
+          "config",
+          "provenance",
+          "run",
+          "errors"
+        ],
+        "title": "Result",
+        "type": "object"
+      },
+      "ResultError": {
+        "additionalProperties": false,
+        "description": "Safe diagnostic vocabulary; raw exceptions, paths and prompts stay local.",
+        "properties": {
+          "code": {
+            "enum": [
+              "validation_error",
+              "worker_lost",
+              "engine_unavailable",
+              "out_of_memory",
+              "timeout",
+              "cancelled"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "stage": {
+            "enum": [
+              "preparation",
+              "generation",
+              "validation",
+              "cleanup"
+            ],
+            "title": "Stage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "stage"
+        ],
+        "title": "ResultError",
+        "type": "object"
       },
       "RunMetrics": {
         "additionalProperties": false,
@@ -1621,6 +1843,11 @@
             "title": "License Name",
             "type": "string"
           },
+          "prompt_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$",
+            "title": "Prompt Id",
+            "type": "string"
+          },
           "sha256": {
             "pattern": "^[a-f0-9]{64}$",
             "title": "Sha256",
@@ -1629,6 +1856,7 @@
         },
         "required": [
           "id",
+          "prompt_id",
           "sha256",
           "data_policy",
           "license_name"

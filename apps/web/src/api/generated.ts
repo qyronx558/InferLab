@@ -60,6 +60,21 @@ export interface components {
              */
             state: "complete";
         };
+        /** Available[list[Result]] */
+        Available_list_Result__: {
+            /** Data */
+            data: components["schemas"]["Result"][];
+            /**
+             * Label
+             * @enum {string}
+             */
+            label: "DEMO DATA" | "MEASURED DATA";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            state: "complete";
+        };
         /** Available[list[RunMetrics]] */
         Available_list_RunMetrics__: {
             /** Data */
@@ -107,6 +122,7 @@ export interface components {
             label: "DEMO DATA";
             registry: components["schemas"]["Resource_Registry_"];
             reports: components["schemas"]["Resource_list_PublishedReport__"];
+            results: components["schemas"]["Resource_list_Result__"];
             runs: components["schemas"]["Resource_list_RunMetrics__"];
             /**
              * Schema Version
@@ -162,11 +178,17 @@ export interface components {
             condition: "warm" | "cold";
             /** Context Tokens */
             context_tokens: number;
+            /** Engine Build */
+            engine_build: string;
             /**
              * Engine Id
              * @enum {string}
              */
             engine_id: "ollama" | "llama.cpp";
+            /** Engine Version */
+            engine_version: string;
+            /** Experiment Id */
+            experiment_id: string;
             /** Gpu Device Id */
             gpu_device_id: string;
             /** Gpu Layers */
@@ -177,9 +199,22 @@ export interface components {
             max_output_tokens: number;
             /** Model Id */
             model_id: string;
+            /** Model Revision */
+            model_revision: string;
+            /** Model Sha256 */
+            model_sha256: string;
+            /** Prompt Id */
+            prompt_id: string;
+            /**
+             * Quantization
+             * @enum {string}
+             */
+            quantization: "Q4_K_M" | "Q5_K_M" | "Q8_0" | "FP16";
             /** Repetitions */
             repetitions: number;
             sampling: components["schemas"]["Sampling"];
+            /** Seed Supported */
+            seed_supported: boolean;
             /** Timeout Seconds */
             timeout_seconds: number;
             /** Warmups */
@@ -210,6 +245,10 @@ export interface components {
             device_name: string;
             /** Driver Version */
             driver_version: string;
+            /** Gpu Device Id */
+            gpu_device_id: string;
+            /** Gpu Layers */
+            gpu_layers: number | null;
             /** Gpu Settings */
             gpu_settings: string;
         };
@@ -365,8 +404,53 @@ export interface components {
         Resource_Registry_: components["schemas"]["Available_Registry_"] | components["schemas"]["Unavailable"];
         Resource_WorkerHeartbeat_: components["schemas"]["Available_WorkerHeartbeat_"] | components["schemas"]["Unavailable"];
         Resource_list_PublishedReport__: components["schemas"]["Available_list_PublishedReport__"] | components["schemas"]["Unavailable"];
+        Resource_list_Result__: components["schemas"]["Available_list_Result__"] | components["schemas"]["Unavailable"];
         Resource_list_RunMetrics__: components["schemas"]["Available_list_RunMetrics__"] | components["schemas"]["Unavailable"];
         Resource_list_Summary__: components["schemas"]["Available_list_Summary__"] | components["schemas"]["Unavailable"];
+        /**
+         * Result
+         * @description One run's reproducible record, not a summary, execution request or publication.
+         */
+        Result: {
+            config: components["schemas"]["ExperimentConfig"];
+            /**
+             * Data Kind
+             * @enum {string}
+             */
+            data_kind: "demo" | "measured";
+            /** Errors */
+            errors: components["schemas"]["ResultError"][];
+            /** Experiment Id */
+            experiment_id: string;
+            /**
+             * Label
+             * @enum {string}
+             */
+            label: "DEMO DATA" | "MEASURED DATA";
+            provenance: components["schemas"]["Provenance"];
+            run: components["schemas"]["RunMetrics"];
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "1.0";
+        };
+        /**
+         * ResultError
+         * @description Safe diagnostic vocabulary; raw exceptions, paths and prompts stay local.
+         */
+        ResultError: {
+            /**
+             * Code
+             * @enum {string}
+             */
+            code: "validation_error" | "worker_lost" | "engine_unavailable" | "out_of_memory" | "timeout" | "cancelled";
+            /**
+             * Stage
+             * @enum {string}
+             */
+            stage: "preparation" | "generation" | "validation" | "cleanup";
+        };
         /** RunMetrics */
         RunMetrics: {
             /** Attempt */
@@ -522,6 +606,8 @@ export interface components {
             id: string;
             /** License Name */
             license_name: string;
+            /** Prompt Id */
+            prompt_id: string;
             /** Sha256 */
             sha256: string;
         };

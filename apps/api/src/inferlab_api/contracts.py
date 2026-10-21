@@ -10,6 +10,7 @@ ShortText = Annotated[str, Field(min_length=1, max_length=160)]
 Count = Annotated[int, Field(strict=True, ge=0)]
 FiniteValue = Annotated[float, Field(strict=True, ge=0)]
 EngineID = Literal["ollama", "llama.cpp"]
+Quantization = Literal["Q4_K_M", "Q5_K_M", "Q8_0", "FP16"]
 ExecutionState = Literal["unavailable", "pending", "running", "complete", "failed", "cancelled"]
 JobPhase = Literal["queued", "leased", "running", "completed", "failed", "cancelled"]
 UnavailableReason = Literal[
@@ -39,7 +40,7 @@ class Engine(Contract):
     version: ShortText
     build: ShortText
     availability: Literal["available", "unavailable"]
-    seed_supported: bool
+    seed_supported: Annotated[bool, Field(strict=True)]
 
 
 class Model(Contract):
@@ -48,7 +49,7 @@ class Model(Contract):
     parameter_size: ShortText
     revision: Identifier
     sha256: Checksum
-    quantization: Literal["Q4_K_M", "Q5_K_M", "Q8_0", "FP16"]
+    quantization: Quantization
     engine_ids: Annotated[list[EngineID], Field(min_length=1, max_length=2)]
     max_context_tokens: Annotated[int, Field(strict=True, ge=128, le=8192)]
     license_name: ShortText
@@ -56,6 +57,7 @@ class Model(Contract):
 
 class Workload(Contract):
     id: Identifier
+    prompt_id: Identifier
     sha256: Checksum
     data_policy: Literal["public", "synthetic"]
     license_name: ShortText
@@ -82,9 +84,17 @@ class Sampling(Contract):
 
 
 class ExperimentConfig(Contract):
+    experiment_id: Identifier
     engine_id: EngineID
+    engine_version: ShortText
+    engine_build: ShortText
+    seed_supported: Annotated[bool, Field(strict=True)]
     model_id: Identifier
+    model_revision: Identifier
+    model_sha256: Checksum
+    quantization: Quantization
     workload_id: Identifier
+    prompt_id: Identifier
     condition: Literal["warm", "cold"]
     context_tokens: Annotated[int, Field(strict=True, ge=128, le=8192)]
     input_token_budget: Annotated[int, Field(strict=True, ge=1, le=8191)]
@@ -103,6 +113,8 @@ class ExperimentConfig(Contract):
             raise ValueError("Input and output budgets must fit the context")
         if self.condition == "cold" and self.warmups != 0:
             raise ValueError("Cold experiments must not request warmups")
+        if self.sampling.seed is not None and not self.seed_supported:
+            raise ValueError("Engine does not support a seed")
         return self
 
 
@@ -121,12 +133,12 @@ def validate_submission(request: ExperimentSubmitRequest, registry: Registry) ->
         raise ValueError("Unknown engine or model")
     if engine.id not in model.engine_ids:
         raise ValueError("Model does not support this engine")
-    if not any(item.id == config.workload_id for item in registry.workloads):
+    workload = next((item for item in registry.workloads if item.id == config.workload_id), None)
+    if workload is None:
         raise ValueError("Unknown workload")
-    if config.context_tokens > model.max_context_tokens:
-        raise ValueError("Context exceeds model registry limit")
     if config.sampling.seed is not None and not engine.seed_supported:
         raise ValueError("Engine does not support a seed")
+    _validate_pins(config, engine, model, workload)
 
 
 class Job(Contract):
@@ -195,6 +207,8 @@ class QualityScore(Measurement):
 
 
 class Hardware(Contract):
+    gpu_device_id: Identifier
+    gpu_layers: Annotated[int, Field(strict=True, ge=0, le=200)] | None
     device_name: ShortText
     device_memory_mib: Annotated[int, Field(strict=True, ge=1)]
     driver_version: ShortText
@@ -207,6 +221,39 @@ class Provenance(Contract):
     workload: Workload
     hardware: Hardware
     methodology_version: Identifier
+
+
+def _validate_pins(
+    config: ExperimentConfig, engine: Engine, model: Model, workload: Workload
+) -> None:
+    """Check declared identity against resolved/observed metadata, without I/O."""
+    if (
+        config.engine_id != engine.id
+        or config.engine_version != engine.version
+        or config.engine_build != engine.build
+        or config.seed_supported != engine.seed_supported
+    ):
+        raise ValueError("Engine provenance does not match pinned config")
+    if (
+        config.model_id != model.id
+        or config.model_revision != model.revision
+        or config.model_sha256 != model.sha256
+        or config.quantization != model.quantization
+    ):
+        raise ValueError("Model provenance does not match pinned config")
+    if config.workload_id != workload.id or config.prompt_id != workload.prompt_id:
+        raise ValueError("Prompt/workload provenance does not match pinned config")
+    if engine.id not in model.engine_ids or config.context_tokens > model.max_context_tokens:
+        raise ValueError("Model/engine context capability mismatch")
+
+
+def _validate_provenance(config: ExperimentConfig, provenance: Provenance) -> None:
+    _validate_pins(config, provenance.engine, provenance.model, provenance.workload)
+    if (
+        config.gpu_device_id != provenance.hardware.gpu_device_id
+        or config.gpu_layers != provenance.hardware.gpu_layers
+    ):
+        raise ValueError("GPU settings do not match config")
 
 
 class RunMetrics(Contract):
@@ -235,6 +282,67 @@ class RunMetrics(Contract):
             raise ValueError("Completed runs require recorded token counts")
         if self.state == "failed" and self.error_code is None:
             raise ValueError("A failed run needs an error code")
+        return self
+
+
+class ResultError(Contract):
+    """Safe diagnostic vocabulary; raw exceptions, paths and prompts stay local."""
+
+    code: ErrorCode
+    stage: Literal["preparation", "generation", "validation", "cleanup"]
+
+
+class Result(Contract):
+    """One run's reproducible record, not a summary, execution request or publication."""
+
+    schema_version: Literal["1.0"]
+    experiment_id: Identifier
+    data_kind: Literal["demo", "measured"]
+    label: Literal["DEMO DATA", "MEASURED DATA"]
+    config: ExperimentConfig
+    provenance: Provenance
+    run: RunMetrics
+    errors: Annotated[list[ResultError], Field(max_length=10)]
+
+    @model_validator(mode="after")
+    def consistent_evidence(self) -> Self:
+        expected_label = "DEMO DATA" if self.data_kind == "demo" else "MEASURED DATA"
+        if self.label != expected_label:
+            raise ValueError("Result label must disclose the data kind")
+        if self.experiment_id != self.config.experiment_id or (
+            self.experiment_id != self.run.experiment_id
+        ):
+            raise ValueError("Result, config and run experiment identifiers disagree")
+        _validate_provenance(self.config, self.provenance)
+        if self.run.condition != self.config.condition:
+            raise ValueError("Run condition must match config")
+        limit = self.config.warmups if self.run.kind == "warmup" else self.config.repetitions
+        if self.run.repetition >= limit:
+            raise ValueError("Run index exceeds configured warmups or repetitions")
+        if self.run.input_tokens is not None and (
+            self.run.input_tokens > self.config.input_token_budget
+        ):
+            raise ValueError("Recorded input exceeds the configured budget")
+        if self.run.output_tokens is not None and (
+            self.run.output_tokens > self.config.max_output_tokens
+        ):
+            raise ValueError("Recorded output exceeds the configured budget")
+        if (
+            self.run.ttft.value is not None
+            and self.run.request_latency.value is not None
+            and self.run.ttft.value > self.run.request_latency.value
+        ):
+            raise ValueError("TTFT exceeds request latency")
+        if self.run.state == "complete" and self.errors:
+            raise ValueError("Complete results cannot contain errors")
+        if self.run.state != "complete" and (
+            not self.errors or self.run.error_code not in {error.code for error in self.errors}
+        ):
+            raise ValueError("Failed/cancelled results require the primary run error")
+        if self.run.state == "cancelled" and self.run.error_code != "cancelled":
+            raise ValueError("Cancelled results require the cancelled error code")
+        if self.run.state == "failed" and self.run.error_code == "cancelled":
+            raise ValueError("Cancellation must use the cancelled state")
         return self
 
 
@@ -283,6 +391,9 @@ class Experiment(Contract):
 
     @model_validator(mode="after")
     def consistent_links(self) -> Self:
+        if self.config.experiment_id != self.id:
+            raise ValueError("Config and experiment identifiers disagree")
+        _validate_provenance(self.config, self.provenance)
         if self.job.experiment_id != self.id or self.summary.experiment_id != self.id:
             raise ValueError("Experiment, job and summary identifiers disagree")
         if self.config.condition != self.summary.condition:
@@ -320,6 +431,9 @@ class PublishedReport(Contract):
 
     @model_validator(mode="after")
     def publication_evidence(self) -> Self:
+        if self.config.experiment_id != self.summary.experiment_id:
+            raise ValueError("Report config and summary experiment identifiers disagree")
+        _validate_provenance(self.config, self.provenance)
         expected = "DEMO DATA" if self.data_kind == "demo" else "MEASURED DATA"
         if self.label != expected:
             raise ValueError("Report label must disclose the data kind")
@@ -417,6 +531,7 @@ class ContractCatalog(Contract):
     registry: Resource[Registry]
     experiments: Resource[ExperimentPage]
     runs: Resource[list[RunMetrics]]
+    results: Resource[list[Result]]
     summaries: Resource[list[Summary]]
     reports: Resource[list[PublishedReport]]
     worker: Resource[WorkerHeartbeat]
