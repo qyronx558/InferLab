@@ -1,0 +1,41 @@
+# UNPINNED PLAN: null values are required operator inputs, not verified provenance.
+schema_version: '1.0'
+source:
+  id: same-source
+  model_id: null
+  revision: null
+  snapshot_sha256: null
+  tokenizer_sha256: null
+  prompt_template_sha256: null
+  transformer_layers: null
+  max_context_tokens: null
+conversion:
+  converter_build: null
+  quantizer_build: null
+  method: direct_from_same_fp16
+  importance_matrix: none
+variants:
+  - model_id: comparison-q4-k-m
+    source_id: same-source
+    quantization: Q4_K_M
+    sha256: null
+    file_bytes: null
+    parent_fp16_sha256: null
+  - model_id: comparison-q5-k-m
+    source_id: same-source
+    quantization: Q5_K_M
+    sha256: null
+    file_bytes: null
+    parent_fp16_sha256: null
+  - model_id: comparison-q8-0
+    source_id: same-source
+    quantization: Q8_0
+    sha256: null
+    file_bytes: null
+    parent_fp16_sha256: null
+  - model_id: comparison-fp16
+    source_id: same-source
+    quantization: FP16
+    sha256: null
+    file_bytes: null
+    parent_fp16_sha256: null

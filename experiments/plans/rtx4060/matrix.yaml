@@ -1,0 +1,380 @@
+# CONFIGURATION PLAN ONLY: no performance, quality or capacity results.
+schema_version: '1.0'
+plan_id: rtx4060-quant-v1
+readiness: draft_unpinned
+hardware:
+  device_name: NVIDIA GeForce RTX 4060
+  nominal_memory_mib: 8192
+  gpu_device_id: gpu-0
+  form_factor: null
+  driver_version: null
+  cpu_model: null
+  host_memory_mib: null
+  power_mode: null
+engine:
+  id: llama.cpp
+  version: null
+  build: null
+  binary_sha256: null
+  seed_supported: true
+  threads: 4
+  threads_batch: 4
+  batch_size: 512
+  ubatch_size: 128
+  parallel: 1
+  cache_type_k: f16
+  cache_type_v: f16
+  kv_offload: true
+  flash_attention: 'off'
+  fit: 'off'
+  context_shift: false
+  cache_prompt: false
+  startup_warmup: false
+  idle_sleep: false
+  adapters: none
+  speculative_decoding: false
+  load_mode: mmap
+  lazy_mode: 'off'
+  split_mode: none
+  main_gpu: 0
+  op_offload: false
+  top_k: 0
+  min_p: 0.0
+  repeat_penalty: 1.0
+  repeat_last_n: 0
+  ignore_eos: false
+  stop: []
+  raw_prompt: true
+  thinking: disabled
+  offline: true
+common:
+  condition: warm
+  input_token_budget: 512
+  max_output_tokens: 128
+  sampling:
+    temperature: 0.0
+    top_p: 1.0
+    seed: 42
+  warmups: 2
+  repetitions: 8
+  concurrency: 1
+  timeout_seconds: 600
+cooldown:
+  minimum_seconds: 30
+  maximum_seconds: 300
+  idle_baseline_seconds: 30
+  stable_seconds: 10
+  maximum_above_idle_c: 3
+  sensor_poll_seconds: 1
+  on_unverifiable: defer_cell
+feasibility:
+  minimum_free_gpu_mib: 1024
+  minimum_free_host_mib: 2048
+  check_each_cell: true
+  automatic_fallback: false
+  on_oom: skip_cell
+  fp16: conditional
+  compare_only_matching_cells: true
+quality:
+  preferred_reference: FP16
+  fallback_reference: Q8_0
+  reference_requires_matching_cell: true
+  golden_prompts: [quality-arithmetic, quality-extraction]
+  required_pass_fraction: 1.0
+  evaluator_version: tiny-golden-v1
+  output_length_policy: stratify_actual_tokens
+order_policy:
+  kind: rotate_quantization_by_cell
+  first_order: [Q4_K_M, Q5_K_M, Q8_0, FP16]
+  cell_order: [c1024, c2048, c4096, c8192, l0, l8, l16, l24]
+  prompt_order: [performance-list, quality-arithmetic, quality-extraction]
+  keep_skipped_positions: true
+trials:
+  - {
+      id: c1024-q4,
+      series: context,
+      quantization: Q4_K_M,
+      context_tokens: 1024,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c1024-q5,
+      series: context,
+      quantization: Q5_K_M,
+      context_tokens: 1024,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c1024-q8,
+      series: context,
+      quantization: Q8_0,
+      context_tokens: 1024,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c1024-f16,
+      series: context,
+      quantization: FP16,
+      context_tokens: 1024,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c2048-q4,
+      series: context,
+      quantization: Q4_K_M,
+      context_tokens: 2048,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c2048-q5,
+      series: context,
+      quantization: Q5_K_M,
+      context_tokens: 2048,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c2048-q8,
+      series: context,
+      quantization: Q8_0,
+      context_tokens: 2048,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c2048-f16,
+      series: context,
+      quantization: FP16,
+      context_tokens: 2048,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c4096-q4,
+      series: context,
+      quantization: Q4_K_M,
+      context_tokens: 4096,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c4096-q5,
+      series: context,
+      quantization: Q5_K_M,
+      context_tokens: 4096,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c4096-q8,
+      series: context,
+      quantization: Q8_0,
+      context_tokens: 4096,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c4096-f16,
+      series: context,
+      quantization: FP16,
+      context_tokens: 4096,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c8192-q4,
+      series: context,
+      quantization: Q4_K_M,
+      context_tokens: 8192,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c8192-q5,
+      series: context,
+      quantization: Q5_K_M,
+      context_tokens: 8192,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c8192-q8,
+      series: context,
+      quantization: Q8_0,
+      context_tokens: 8192,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: c8192-f16,
+      series: context,
+      quantization: FP16,
+      context_tokens: 8192,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l0-q4,
+      series: layers,
+      quantization: Q4_K_M,
+      context_tokens: 2048,
+      gpu_layers: 0,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l0-q5,
+      series: layers,
+      quantization: Q5_K_M,
+      context_tokens: 2048,
+      gpu_layers: 0,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l0-q8,
+      series: layers,
+      quantization: Q8_0,
+      context_tokens: 2048,
+      gpu_layers: 0,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l0-f16,
+      series: layers,
+      quantization: FP16,
+      context_tokens: 2048,
+      gpu_layers: 0,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l8-q4,
+      series: layers,
+      quantization: Q4_K_M,
+      context_tokens: 2048,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l8-q5,
+      series: layers,
+      quantization: Q5_K_M,
+      context_tokens: 2048,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l8-q8,
+      series: layers,
+      quantization: Q8_0,
+      context_tokens: 2048,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l8-f16,
+      series: layers,
+      quantization: FP16,
+      context_tokens: 2048,
+      gpu_layers: 8,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l16-q4,
+      series: layers,
+      quantization: Q4_K_M,
+      context_tokens: 2048,
+      gpu_layers: 16,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l16-q5,
+      series: layers,
+      quantization: Q5_K_M,
+      context_tokens: 2048,
+      gpu_layers: 16,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l16-q8,
+      series: layers,
+      quantization: Q8_0,
+      context_tokens: 2048,
+      gpu_layers: 16,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l16-f16,
+      series: layers,
+      quantization: FP16,
+      context_tokens: 2048,
+      gpu_layers: 16,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l24-q4,
+      series: layers,
+      quantization: Q4_K_M,
+      context_tokens: 2048,
+      gpu_layers: 24,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l24-q5,
+      series: layers,
+      quantization: Q5_K_M,
+      context_tokens: 2048,
+      gpu_layers: 24,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l24-q8,
+      series: layers,
+      quantization: Q8_0,
+      context_tokens: 2048,
+      gpu_layers: 24,
+      admission: pending,
+      skip_reason: null,
+    }
+  - {
+      id: l24-f16,
+      series: layers,
+      quantization: FP16,
+      context_tokens: 2048,
+      gpu_layers: 24,
+      admission: pending,
+      skip_reason: null,
+    }

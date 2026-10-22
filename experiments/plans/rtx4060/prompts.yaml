@@ -1,0 +1,31 @@
+# Exact synthetic UTF-8 prompt strings; no private data or benchmark results.
+schema_version: '1.0'
+suite_id: quant-controlled-prompts-v1
+rendering: exact_raw_utf8_no_template
+prompts:
+  - id: performance-list
+    purpose: performance
+    text: Write the integers from 1 through 200 in ascending order, separated by a comma and one space. Do not add any explanation.
+    sha256: 61d2adbde9a8b1a9397deaf84424e242fc7b08809e47de6695474321ab05d645
+    input_tokens: null
+    expected: null
+  - id: quality-arithmetic
+    purpose: quality
+    text: What is 17 + 25? Reply with only the integer.
+    sha256: 888b7ef6394b90bdb057583f21170358b5a1a5fa3decc9ed466560184ef6f50d
+    input_tokens: null
+    expected:
+      kind: exact_trimmed_text
+      value: '42'
+  - id: quality-extraction
+    purpose: quality
+    text:
+      Mira's favorite color is blue. Return only a JSON object with exactly the keys name and color, using the information
+      in this sentence.
+    sha256: 14e6c1ce58ca1a01e7bdbd48190823abde8b25e1571a8c02e1c3d3b0b5b345ef
+    input_tokens: null
+    expected:
+      kind: exact_json_object
+      value:
+        name: Mira
+        color: blue
