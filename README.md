@@ -4,7 +4,7 @@ Local LLM inference benchmarking with a public, read-only portfolio of reviewed
 results. This is the dashboard design-system preview with engineering guardrails
 (rulebook Prompts 01-04), plus the explicitly authorized CPU metric helpers from
 the tutoring step and a standalone local Ollama HTTP transport. Every displayed result is labeled DEMO DATA. Real
-benchmark collection, authentication, job execution, database, publishing and cloud deployment
+benchmark collection, authentication, job execution, publishing and cloud deployment
 are not implemented yet.
 
 ## Windows setup
@@ -61,8 +61,25 @@ Use separate PowerShell terminals from the repository root:
 Stop development servers with Ctrl+C. `/health` returns
 `{"status":"ok","execution":"not_configured"}`; it reports process liveness,
 not GPU readiness. The web app does not call the API. The worker neither polls
-nor opens a network listener. API/worker env examples are reserved, not loaded yet;
+nor opens a network listener. Env example files are not loaded automatically;
 the frontend example sets only a public display title.
+
+## Local database
+
+SQLAlchemy models and Alembic migrations support SQLite development and an
+operator-supplied PostgreSQL URL. Database creation/migration is explicit; the
+health-only API does not connect or migrate during startup:
+
+```powershell
+uv run --locked alembic upgrade head
+uv run --locked alembic current
+uv run --locked alembic check
+uv run --locked pytest tests/test_database.py
+```
+
+The default file is `.local/inferlab.db`. See [DATABASE.md](docs/DATABASE.md) for
+`INFERLAB_DATABASE_URL`, PostgreSQL, typed units, privacy and retention. Raw prompts
+and bulky traces are not database fields; benchmark execution remains unimplemented.
 
 ## Verify
 
