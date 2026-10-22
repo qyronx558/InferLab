@@ -388,6 +388,9 @@ class AuditEvent(Base):
             "publish",
             "withdraw",
             "retention",
+            "update",
+            "delete",
+            "logout",
         )
     )
     outcome: Mapped[str] = mapped_column(choice("outcome_values", "success", "failure"))
@@ -398,6 +401,51 @@ class AuditEvent(Base):
     reason_code: Mapped[str | None] = mapped_column(
         choice("audit_reason_values", *ERROR_CODES, "invalid_credentials", "unauthorized")
     )
+
+
+class ExperimentMetadata(Base):
+    """Mutable administrative labels; benchmark evidence remains immutable."""
+
+    __tablename__ = "experiment_metadata"
+    __table_args__ = (sa.CheckConstraint("version >= 1", name="version_positive"),)
+    experiment_id: Mapped[str] = mapped_column(
+        Identifier(), sa.ForeignKey("experiments.id", ondelete="RESTRICT"), primary_key=True
+    )
+    name: Mapped[str] = mapped_column(sa.String(160))
+    version: Mapped[int] = mapped_column(sa.Integer, default=1)
+    archived_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+
+
+class APIControl(Base):
+    """One database-serialized admission/rate-limit row, shared by API processes."""
+
+    __tablename__ = "api_control"
+    __table_args__ = (sa.CheckConstraint("id = 1", name="singleton"),)
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
+    revision: Mapped[int] = mapped_column(sa.BigInteger)
+    login_window: Mapped[datetime] = mapped_column(UTCDateTime())
+    failed_logins: Mapped[int] = mapped_column(sa.Integer)
+    locked_until: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    mutation_window: Mapped[datetime] = mapped_column(UTCDateTime())
+    mutation_count: Mapped[int] = mapped_column(sa.Integer)
+
+
+class AdminSession(Base):
+    __tablename__ = "admin_sessions"
+    token_sha256: Mapped[str] = mapped_column(SHA256(), primary_key=True)
+    csrf_token: Mapped[str] = mapped_column(sa.String(64))
+    expires_at: Mapped[datetime] = mapped_column(UTCDateTime(), index=True)
+
+
+class APIRequest(Base):
+    """Durable idempotency tombstones: never store raw request bodies or passwords."""
+
+    __tablename__ = "api_requests"
+    key: Mapped[str] = mapped_column(Identifier(), primary_key=True)
+    request_sha256: Mapped[str] = mapped_column(SHA256())
+    response: Mapped[dict[str, Any]] = mapped_column(sa.JSON)
+    status_code: Mapped[int] = mapped_column(sa.Integer)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utc_now)
 
 
 def report_payload_sha256(payload: object) -> str:

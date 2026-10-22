@@ -40,6 +40,15 @@ No unpublished experiment ID, private registry entry, queue status, heartbeat, l
 
 ## Private local API
 
+Implemented endpoint scope and setup are in [API.md](API.md). FastAPI also offers
+unauthenticated local read mirrors at `/api/v1/public/reports`,
+`/api/v1/public/reports/{id}` and `/api/v1/public/metadata`, backed exclusively by
+stored published snapshots. This does not deploy a cloud API or replace the
+independent public static export. The dashboard still uses explicit demo fixtures.
+The table below includes future worker/publication routes; those are not exposed
+by this CRUD stage. Current experiment detail returns config and latest job;
+attempt-history/metric pagination remains future work.
+
 Prefix `/api/v1`; every route below requires the single-admin session except explicit authentication bootstrap. Authenticated non-admin identities are denied; hiding controls is not authorization.
 
 | Method / path | Behavior |
@@ -51,6 +60,8 @@ Prefix `/api/v1`; every route below requires the single-admin session except exp
 | GET `/experiments?cursor=&limit=` | Private experiment history; limit defaults to 20, maximum 100. |
 | POST `/experiments` | Validate config and idempotency key; atomically save experiment/job/audit event; return 202 with IDs and queued status. |
 | GET `/experiments/{id}` | Config, attempt history, saved metrics, sanitized diagnostics and current state. |
+| PATCH `/experiments/{id}` | Rename administrative metadata with expected version; config/evidence are immutable. |
+| DELETE `/experiments/{id}` | Archive private metadata with expected version; preserve evidence, idempotency tombstones and published snapshots. Active jobs must acknowledge cancellation first. |
 | POST `/experiments/{id}/cancel` | Idempotent cancellation request; queued jobs cancel immediately, active jobs acknowledge after stopping. Completed jobs return conflict. |
 | POST `/experiments/{id}/retry` | Explicit retry of failed/cancelled experiment creates a linked new job; enforces limits and idempotency. |
 | GET `/worker` | Availability, last heartbeat, active job and stop-switch state. |

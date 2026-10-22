@@ -13,9 +13,9 @@ def test_local_health_does_not_claim_gpu_readiness() -> None:
         assert response.json() == {"status": "ok", "execution": "not_configured"}
 
 
-def test_no_experiment_submission_is_exposed() -> None:
+def test_experiment_submission_requires_authentication() -> None:
     with TestClient(app, base_url="http://127.0.0.1") as client:
-        assert client.post("/api/v1/experiments", json={}).status_code == 404
+        assert client.post("/api/v1/experiments", json={}).status_code == 401
         assert client.get("/health", headers={"host": "untrusted.example"}).status_code == 400
 
 
