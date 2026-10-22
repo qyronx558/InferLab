@@ -391,6 +391,11 @@ class AuditEvent(Base):
             "update",
             "delete",
             "logout",
+            "claim",
+            "start",
+            "complete",
+            "fail",
+            "recover",
         )
     )
     outcome: Mapped[str] = mapped_column(choice("outcome_values", "success", "failure"))
@@ -446,6 +451,78 @@ class APIRequest(Base):
     response: Mapped[dict[str, Any]] = mapped_column(sa.JSON)
     status_code: Mapped[int] = mapped_column(sa.Integer)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utc_now)
+
+
+class WorkerControl(Base):
+    __tablename__ = "worker_control"
+    __table_args__ = (
+        sa.CheckConstraint("id = 1", name="singleton"),
+        sa.CheckConstraint("fencing_counter >= 0", name="fencing_nonnegative"),
+    )
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
+    paused: Mapped[bool] = mapped_column(sa.Boolean(create_constraint=True, name="paused_boolean"))
+    pause_reason: Mapped[str | None] = mapped_column(Identifier())
+    fencing_counter: Mapped[int] = mapped_column(sa.BigInteger)
+    worker_id: Mapped[str | None] = mapped_column(Identifier())
+    last_heartbeat_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+
+
+class JobAttempt(Base):
+    """Durable attempt evidence; a retried job never erases its interrupted attempt."""
+
+    __tablename__ = "job_attempts"
+    __table_args__ = (
+        sa.CheckConstraint("number BETWEEN 1 AND 2", name="number_bounds"),
+        sa.CheckConstraint("fencing_token > 0", name="fencing_positive"),
+        sa.CheckConstraint("deadline_at >= leased_at", name="deadline_order"),
+        sa.CheckConstraint(
+            "(phase IN ('completed', 'failed', 'cancelled') AND finished_at IS NOT NULL) OR "
+            "(phase IN ('leased', 'running') AND finished_at IS NULL)",
+            name="terminal_time",
+        ),
+        sa.CheckConstraint(
+            "phase NOT IN ('running', 'completed') OR started_at IS NOT NULL",
+            name="start_required",
+        ),
+        sa.CheckConstraint(
+            "(phase = 'completed' AND result_sha256 IS NOT NULL AND error_code IS NULL) OR "
+            "(phase != 'completed' AND result_sha256 IS NULL)",
+            name="result_shape",
+        ),
+        sa.CheckConstraint("phase != 'failed' OR error_code IS NOT NULL", name="failure_error"),
+        sa.CheckConstraint(
+            "retry_after_at IS NULL OR (phase = 'failed' AND number = 1 "
+            "AND error_code IN ('worker_lost', 'engine_unavailable'))",
+            name="retry_shape",
+        ),
+        sa.Index("ix_job_attempts_retry", "retry_after_at"),
+    )
+    job_id: Mapped[str] = mapped_column(
+        Identifier(),
+        sa.ForeignKey("jobs.id", ondelete="RESTRICT"),
+        primary_key=True,
+    )
+    number: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
+    fencing_token: Mapped[int] = mapped_column(sa.BigInteger, unique=True)
+    worker_id: Mapped[str] = mapped_column(Identifier())
+    phase: Mapped[str] = mapped_column(
+        choice(
+            "attempt_phase_values",
+            "leased",
+            "running",
+            "completed",
+            "failed",
+            "cancelled",
+        )
+    )
+    leased_at: Mapped[datetime] = mapped_column(UTCDateTime())
+    started_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    finished_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    deadline_at: Mapped[datetime] = mapped_column(UTCDateTime())
+    last_heartbeat_at: Mapped[datetime] = mapped_column(UTCDateTime())
+    error_code: Mapped[str | None] = mapped_column(choice("attempt_error_values", *ERROR_CODES))
+    retry_after_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    result_sha256: Mapped[str | None] = mapped_column(SHA256())
 
 
 def report_payload_sha256(payload: object) -> str:

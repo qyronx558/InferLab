@@ -52,6 +52,8 @@ no global session or automatic commit is installed.
 | `ModelRegistry` / `model_registry` | Installed model identifier, revision, SHA-256, quantization, context limit and license metadata. No executable/download path or model bytes. Composite pin referenced by experiments prevents changing/deleting referenced identity. |
 | `Experiment` / `experiments` | Normalized config plus workload/prompt IDs/hash, engine pins, GPU/device/driver/methodology and creation timestamp. Bounds match current single-client contracts, including seed support, token/context budget and cold/warmup separation. |
 | `Job` / `jobs` | Idempotency key and request-metadata hash, lifecycle phase, attempt, optional worker/lease/fencing metadata, cancellation and terminal timestamps/errors. Named unique nullable active slot permits at most one leased/running job. |
+| `JobAttempt` / `job_attempts` | Fenced attempt history, start/end/heartbeat/deadline, safe errors, retry eligibility and accepted result digest. Unique token and `(job_id, number)` prevent duplicate attempts. |
+| `WorkerControl` / `worker_control` | Singleton persisted stop-switch, fencing counter and private worker heartbeat. |
 | `RunMetric` / `run_metrics` | One observed run, identified by job/attempt/kind/repetition, condition and outcome. Composite foreign keys reject job/experiment and experiment/condition mismatches. Counts are separate from requested budgets. |
 | `PublishedReport` / `published_reports` | Bounded validated public-contract snapshot, canonical payload hash, publication timestamp and experiment reference. ORM insertion verifies stored config/provenance, matching completed run evidence and completed job attempt; accepted-run links are inserted in the same transaction. ORM updates are rejected; create a new report version. This is storage, not approval or a deployment receipt. |
 | `published_report_runs` | Association table with report/run/experiment composite foreign keys. Prevents cross-experiment evidence links and deletion of linked runs or reports without explicit archival. |
@@ -147,6 +149,15 @@ state. PostgreSQL needs its own consistent backup/restore procedure. A downgrade
 is a schema operation, not a backup or cross-engine data transfer.
 
 ## Migration development and verification
+
+Revision `0003` adds worker control/attempts and worker audit actions. Its initial
+fencing counter preserves the highest pre-existing job token. The worker shares
+the API's admission transaction lock. SQLite uses database UTC timestamps;
+PostgreSQL uses `clock_timestamp()` after locking, avoiding transaction-start time
+for lease renewal. See [WORKER.md](WORKER.md) for result atomicity and recovery.
+Never purge attempt history while its job/evidence is retained. A `0003` downgrade
+refuses narrowed audit constraints if worker action records remain, and drops
+attempt/control state; back up and stop all workers before schema changes.
 
 Revision `0002` adds administrative experiment labels/version/archive timestamps,
 server-side session digests, durable idempotency responses and one serialized API

@@ -336,11 +336,15 @@ name = "inferlab-worker"
 version = "0.1.0"
 source = { editable = "worker" }
 dependencies = [
+    { name = "inferlab-api" },
     { name = "inferlab-core" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "inferlab-core", editable = "packages/inferlab_core" }]
+requires-dist = [
+    { name = "inferlab-api", editable = "apps/api" },
+    { name = "inferlab-core", editable = "packages/inferlab_core" },
+]
 
 [[package]]
 name = "inferlab-workspace"

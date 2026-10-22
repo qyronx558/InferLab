@@ -74,11 +74,11 @@ Bodies are limited to 64 KiB, including chunked bodies; compressed inputs are re
 Every write acquires the singleton database admission row before resource reads.
 PostgreSQL uses its row lock; SQLite reserves its writer lock. Queue/day checks,
 experiment/job/idempotency and success audit commit together. SQLite contention
-can return safe 503; clients retry with the original key. Future worker claims,
-completion/cancellation and lease reconciliation must use this serialization
-boundary or equivalent conditional locking/fencing. This stage does not implement
-claiming, lease renewal, worker loss recovery, stop acknowledgement or job deadlines;
-the architecture's worker release gates remain open.
+can return safe 503; clients retry with the original key. The [private worker](WORKER.md)
+uses this same serialization boundary for claims, renewals, completion and recovery.
+It performs stop verification through the operator's local plugin. API status reads
+remain read-only; recovery occurs on worker startup/poll. Live engine stop behavior
+and GPU release gates still require owner hardware evidence.
 
 ## Operator setup (PowerShell)
 
@@ -164,8 +164,9 @@ CPU tests cover access boundaries, durable sessions/idempotency, config caps,
 rollback, cursor pages, safe errors, origin/CSRF/TLS, rate limits, archive/report
 isolation, duplicate concurrent admission and the complete transition matrix.
 No GPU, network engine or cloud account is needed. Live PostgreSQL, local browser
-TLS/cookie behavior, worker fencing/recovery and end-to-end publishing remain
-release gates; offline PostgreSQL migration SQL is checked separately.
+TLS/cookie behavior, actual engine stop/recovery and end-to-end publishing remain
+release gates; worker fencing/recovery has CPU failure tests, and offline PostgreSQL
+migration SQL is checked separately.
 
 References: [FastAPI dependency injection](https://fastapi.tiangolo.com/tutorial/dependencies/),
 [argon2-cffi PasswordHasher](https://argon2-cffi.readthedocs.io/en/stable/howto.html),
