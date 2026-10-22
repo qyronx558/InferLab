@@ -51,7 +51,7 @@ Use separate PowerShell terminals from the repository root:
 
 # API: http://127.0.0.1:8000/health
 .\scripts\dev.ps1 -App api
-# Equivalent: uv run --locked uvicorn inferlab_api.main:app --host 127.0.0.1 --port 8000 --reload
+# Equivalent: uv run --locked uvicorn inferlab_api.main:app --host 127.0.0.1 --port 8000 --reload --no-access-log --no-proxy-headers
 
 # Worker: prints "not configured" and exits successfully
 .\scripts\dev.ps1 -App worker
@@ -68,7 +68,8 @@ the frontend example sets only a public display title.
 
 SQLAlchemy models and Alembic migrations support SQLite development and an
 operator-supplied PostgreSQL URL. Database creation/migration is explicit; the
-health-only API does not connect or migrate during startup:
+API opens a database engine only with an explicitly configured environment URL and
+never migrates during startup:
 
 ```powershell
 uv run --locked alembic upgrade head
@@ -80,6 +81,13 @@ uv run --locked pytest tests/test_database.py
 The default file is `.local/inferlab.db`. See [DATABASE.md](docs/DATABASE.md) for
 `INFERLAB_DATABASE_URL`, PostgreSQL, typed units, privacy and retention. Raw prompts
 and bulky traces are not database fields; benchmark execution remains unimplemented.
+
+The [API guide](docs/API.md) documents published-only public reads and authenticated
+experiment CRUD, rename/archive, cancel/retry, pagination, idempotency and errors.
+Admin mutations require locally trusted HTTPS, a provisioned Argon2id password
+hash and CSRF protection. An injected operator admission provider supplies approved
+registry/provenance; the default submission provider returns 503. The dashboard
+remains mock-only, and no worker execution is started by an HTTP request.
 
 ## Verify
 
@@ -169,11 +177,11 @@ uv run --locked pytest tests/test_engine_parity.py tests/test_llama_cpp.py
 
 ## Security and scope
 
-Development servers bind to loopback. Plain HTTP is for this health-only scaffold;
-the authenticated console must implement the PRD's TLS/session/origin requirements
-before any experiment mutation exists. Do not forward these ports, bind to
-`0.0.0.0`, or deploy this API as a public inference service. No CORS bypass,
-credentials or submission endpoints are included.
+Development servers bind to loopback. Plain HTTP supports liveness and read-only
+development; admin authentication and mutations require HTTPS. See the API guide
+for local TLS and session setup. Do not forward these ports, bind to `0.0.0.0`, or
+deploy this API as a public inference service. Default access logging is disabled
+to avoid retaining query strings. No default credentials are included.
 
 Never put secrets in `VITE_` variables: they become public bundle content. Keep
 model weights, databases, traces and `.env` files out of Git. Setup preserves

@@ -148,6 +148,20 @@ is a schema operation, not a backup or cross-engine data transfer.
 
 ## Migration development and verification
 
+Revision `0002` adds administrative experiment labels/version/archive timestamps,
+server-side session digests, durable idempotency responses and one serialized API
+admission/rate-limit row. It expands audit actions for rename/archive/logout without
+modifying benchmark evidence. API successes and their audit/idempotency records
+commit together. Rate charges commit before the mutation so failed validation also
+counts. Keep idempotency tombstones while experiment IDs remain reserved, including
+after archival; deleting them permits unsafe replay. Expired sessions can be removed
+by the operator (a new login also clears older sessions). No automatic purge runs.
+
+The `0002` downgrade refuses to narrow audit action constraints while new action
+records remain; export/archive those explicitly before a deliberate downgrade.
+Downgrade drops session/idempotency/label data and is for disposable databases;
+restore a consistent backup when rolling back retained installations.
+
 ```powershell
 uv run --locked alembic revision --autogenerate -m 'describe change'
 # Review all generated DDL and test it before applying to retained data.
