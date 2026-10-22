@@ -13,6 +13,12 @@ TRANSITIONS: dict[JobPhase, frozenset[JobPhase]] = {
 }
 
 
-def check_transition(current: JobPhase, target: JobPhase) -> None:
+def check_transition(
+    current: JobPhase, target: JobPhase, *, retry_authorized: bool = False
+) -> None:
+    # Worker-only rescheduling: the failed attempt, confirmed engine stop,
+    # backoff, remaining deadline and two-attempt cap are enforced by WorkerStore.
+    if retry_authorized and current in {"leased", "running"} and target == "queued":
+        return
     if target not in TRANSITIONS[current]:
         raise APIError(409, "invalid_transition", "Job transition is not allowed.")

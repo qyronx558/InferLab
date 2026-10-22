@@ -53,15 +53,16 @@ Use separate PowerShell terminals from the repository root:
 .\scripts\dev.ps1 -App api
 # Equivalent: uv run --locked uvicorn inferlab_api.main:app --host 127.0.0.1 --port 8000 --reload --no-access-log --no-proxy-headers
 
-# Worker: prints "not configured" and exits successfully
+# Worker: polls privately when configured; otherwise prints "not configured"
 .\scripts\dev.ps1 -App worker
 # Equivalent: uv run --locked inferlab-worker
 ```
 
 Stop development servers with Ctrl+C. `/health` returns
 `{"status":"ok","execution":"not_configured"}`; it reports process liveness,
-not GPU readiness. The web app does not call the API. The worker neither polls
-nor opens a network listener. Env example files are not loaded automatically;
+not GPU readiness. The web app does not call the API. The worker polls the local
+database only after operator configuration and opens no network listener.
+Env example files are not loaded automatically;
 the frontend example sets only a public display title.
 
 ## Local database
@@ -80,7 +81,8 @@ uv run --locked pytest tests/test_database.py
 
 The default file is `.local/inferlab.db`. See [DATABASE.md](docs/DATABASE.md) for
 `INFERLAB_DATABASE_URL`, PostgreSQL, typed units, privacy and retention. Raw prompts
-and bulky traces are not database fields; benchmark execution remains unimplemented.
+and bulky traces are not database fields. The worker supervises an injected
+owner-authored benchmark plugin; no default benchmark runner is installed.
 
 The [API guide](docs/API.md) documents published-only public reads and authenticated
 experiment CRUD, rename/archive, cancel/retry, pagination, idempotency and errors.
@@ -88,6 +90,12 @@ Admin mutations require locally trusted HTTPS, a provisioned Argon2id password
 hash and CSRF protection. An injected operator admission provider supplies approved
 registry/provenance; the default submission provider returns 503. The dashboard
 remains mock-only, and no worker execution is started by an HTTP request.
+
+The [private worker guide](docs/WORKER.md) covers fixed registry policy, exclusive
+GPU/process locks, 120-second fenced leases, heartbeats, one-hour job budgets,
+cancellation, bounded retries and restart recovery. Apply migration `0003` before
+using the worker. Failure/restart tests use CPU fixtures and spawned Python
+processes, without downloading models or implementing benchmark algorithms.
 
 ## Verify
 

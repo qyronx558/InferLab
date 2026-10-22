@@ -13,6 +13,7 @@ from fastapi import APIRouter, Depends, Request, Response, Security
 from fastapi.security import APIKeyCookie
 from sqlalchemy.orm import Session
 
+from .database.coordination import lock_admission
 from .database.models import AdminSession, APIControl, AuditEvent
 from .dependencies import Settings, get_now, get_session, get_settings
 from .errors import APIError
@@ -54,12 +55,10 @@ def audit(
 def lock_control(session: Session) -> APIControl:
     # UPDATE first acquires a SQLite write reservation or a PostgreSQL row lock.
     # Every API write uses this same row before admission checks or evidence reads.
-    changed = session.connection().execute(
-        sa.update(APIControl).where(APIControl.id == 1).values(revision=APIControl.revision + 1)
-    )
-    if changed.rowcount != 1:
-        raise APIError(503, "database_not_ready", "Apply database migrations first.")
-    return session.scalars(sa.select(APIControl).execution_options(populate_existing=True)).one()
+    try:
+        return lock_admission(session)
+    except RuntimeError:
+        raise APIError(503, "database_not_ready", "Apply database migrations first.") from None
 
 
 def check_origin(request: Request, settings: Settings) -> None:
