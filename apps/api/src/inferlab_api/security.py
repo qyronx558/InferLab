@@ -20,6 +20,8 @@ from .errors import APIError
 from .http_contracts import LoginRequest, SessionInfo
 
 COOKIE = "__Host-inferlab_session"
+SESSION_HOURS = 12
+COOKIE_MAX_AGE_SECONDS = SESSION_HOURS * 3600
 cookie_scheme = APIKeyCookie(name=COOKIE, auto_error=False)
 router = APIRouter(prefix="/api/v1/auth", tags=["authentication"])
 DB = Annotated[Session, Depends(get_session)]
@@ -27,8 +29,13 @@ Clock = Annotated[datetime, Depends(get_now)]
 Config = Annotated[Settings, Depends(get_settings)]
 
 
-def digest(value: str) -> str:
-    return hashlib.sha256(value.encode()).hexdigest()
+def session_key(token: str, password_hash: str) -> str:
+    """Key server-side sessions to the provisioned credential.
+
+    Only this HMAC digest is stored. Changing the configured password hash changes
+    the key, so every existing session fails closed without manual DB surgery.
+    """
+    return hmac.new(password_hash.encode(), token.encode(), hashlib.sha256).hexdigest()
 
 
 def audit(
@@ -77,9 +84,15 @@ def require_cookie(request: Request, token: Annotated[str | None, Security(cooki
 
 
 def require_admin(
-    request: Request, token: Annotated[str, Depends(require_cookie)], session: DB, now: Clock
+    request: Request,
+    token: Annotated[str, Depends(require_cookie)],
+    session: DB,
+    settings: Config,
+    now: Clock,
 ) -> AdminSession:
-    identity = session.get(AdminSession, digest(token))
+    if not settings.password_hash:
+        raise APIError(503, "auth_not_configured", "Provision the local admin password hash.")
+    identity = session.get(AdminSession, session_key(token, settings.password_hash))
     if identity is None or identity.expires_at <= now:
         raise APIError(401, "unauthorized", "An authenticated admin session is required.")
     request.state.admin_authenticated = True
@@ -129,7 +142,8 @@ def login(
     now: Clock,
 ) -> SessionInfo:
     check_origin(request, settings)
-    if not settings.password_hash or not settings.password_hash.startswith("$argon2id$"):
+    password_hash = settings.password_hash
+    if not password_hash or not password_hash.startswith("$argon2id$"):
         raise APIError(503, "auth_not_configured", "Provision the local admin password hash.")
     control = lock_control(session)
     if control.locked_until is not None and now < control.locked_until:
@@ -138,7 +152,7 @@ def login(
         control.login_window = now
         control.failed_logins = 0
     try:
-        PasswordHasher().verify(settings.password_hash, body.password.get_secret_value())
+        PasswordHasher().verify(password_hash, body.password.get_secret_value())
     except InvalidHashError:
         raise APIError(
             503, "auth_not_configured", "Provision a valid Argon2id password hash."
@@ -156,15 +170,21 @@ def login(
     session.execute(sa.delete(AdminSession))
     raw_token = secrets.token_hex(32)
     identity = AdminSession(
-        token_sha256=digest(raw_token),
+        token_sha256=session_key(raw_token, password_hash),
         csrf_token=secrets.token_hex(32),
-        expires_at=now + timedelta(hours=12),
+        expires_at=now + timedelta(hours=SESSION_HOURS),
     )
     session.add(identity)
     audit(session, "login", "admin")
     session.commit()
     response.set_cookie(
-        COOKIE, raw_token, max_age=43200, secure=True, httponly=True, samesite="strict", path="/"
+        COOKIE,
+        raw_token,
+        max_age=COOKIE_MAX_AGE_SECONDS,
+        secure=True,
+        httponly=True,
+        samesite="strict",
+        path="/",
     )
     return SessionInfo(csrf_token=identity.csrf_token, expires_at=identity.expires_at)
 

@@ -4,8 +4,8 @@ Local LLM inference benchmarking with a public, read-only portfolio of reviewed
 results. This is the dashboard design-system preview with engineering guardrails
 (rulebook Prompts 01-04), plus the explicitly authorized CPU metric helpers from
 the tutoring step and a standalone local Ollama HTTP transport. Every displayed result is labeled DEMO DATA. Real
-benchmark collection, authentication, job execution, publishing and cloud deployment
-are not implemented yet.
+benchmark algorithms, publishing and cloud deployment are not implemented yet; the
+authenticated local API and private worker queue are.
 
 ## Windows setup
 
@@ -187,7 +187,9 @@ uv run --locked pytest tests/test_engine_parity.py tests/test_llama_cpp.py
 
 Development servers bind to loopback. Plain HTTP supports liveness and read-only
 development; admin authentication and mutations require HTTPS. See the API guide
-for local TLS and session setup. Do not forward these ports, bind to `0.0.0.0`, or
+for local TLS and session setup, and the
+[single-admin auth ADR](docs/ADR-002-single-admin-auth.md) for the security
+decision. Do not forward these ports, bind to `0.0.0.0`, or
 deploy this API as a public inference service. Default access logging is disabled
 to avoid retaining query strings. No default credentials are included.
 
@@ -198,7 +200,8 @@ install/build hooks execute third-party code; review lockfile changes. No cloud
 keys, paid services, automatic model downloads, Docker or hosted GPU jobs are included.
 
 Read the [PRD](docs/PRD.md), [architecture](docs/ARCHITECTURE.md),
-[zero-cost ADR](docs/ADR-001-zero-cost.md), and
+[zero-cost ADR](docs/ADR-001-zero-cost.md),
+[single-admin auth ADR](docs/ADR-002-single-admin-auth.md), and
 [definition of done](docs/DEFINITION-OF-DONE.md). Those describe future MVP targets;
 their release gates are not complete in this skeleton. The
 [production rulebook](InferLab_Production_Prompt_Rulebook.pdf) reserves benchmark

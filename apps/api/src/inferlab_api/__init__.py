@@ -1,1 +1,1 @@
-"""Private local API; experiment routes are not implemented yet."""
+"""Private local API with published reads and authenticated admin mutations."""
