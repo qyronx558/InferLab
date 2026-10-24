@@ -511,6 +511,72 @@ def test_login_csrf_logout_expiry_and_cookie_flags(api: APIHarness) -> None:
         assert stored.token_sha256 != api.client.cookies.get(COOKIE)
 
 
+def test_credential_rotation_revokes_existing_sessions(api: APIHarness) -> None:
+    old_token = api.client.cookies.get(COOKIE)
+    assert old_token is not None
+    rotated_password = "rotated-password-never-a-production-credential"
+    rotated_hash = PasswordHasher().hash(rotated_password)
+    rotated = create_app(
+        engine=api.engine,
+        settings=Settings(origin=ORIGIN, password_hash=rotated_hash),
+        runner=api.runner,
+        clock=api.clock,
+    )
+    with TestClient(rotated, base_url="https://127.0.0.1") as client:
+        stale = client.get(BASE + "/auth/session", headers={"Cookie": f"{COOKIE}={old_token}"})
+        assert stale.status_code == 401
+        assert (
+            client.post(
+                BASE + "/auth/login", json={"password": PASSWORD}, headers={"Origin": ORIGIN}
+            ).status_code
+            == 401
+        )
+        login = client.post(
+            BASE + "/auth/login",
+            json={"password": rotated_password},
+            headers={"Origin": ORIGIN},
+        )
+        assert login.status_code == 200
+        assert client.get(BASE + "/auth/session").status_code == 200
+
+
+def test_unconfigured_auth_fails_closed(api: APIHarness) -> None:
+    token = api.client.cookies.get(COOKIE)
+    assert token is not None
+    application = create_app(engine=api.engine, settings=Settings(origin=ORIGIN), clock=api.clock)
+    with TestClient(application, base_url="https://127.0.0.1") as client:
+        response = client.get(BASE + "/auth/session", headers={"Cookie": f"{COOKIE}={token}"})
+        assert response.status_code == 503
+        assert response.json()["error"]["code"] == "auth_not_configured"
+
+
+def test_cors_allowlist_and_security_headers(api: APIHarness) -> None:
+    allowed = api.client.options(
+        BASE + "/experiments",
+        headers={
+            "Origin": ORIGIN,
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "X-CSRF-Token, Idempotency-Key",
+        },
+    )
+    assert allowed.status_code == 200
+    assert allowed.headers["access-control-allow-origin"] == ORIGIN
+    assert allowed.headers["access-control-allow-credentials"] == "true"
+    denied = api.client.options(
+        BASE + "/experiments",
+        headers={
+            "Origin": "https://evil.example",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+    assert denied.status_code == 400
+    assert "access-control-allow-origin" not in denied.headers
+    health = api.client.get("/health")
+    assert health.headers["cache-control"] == "no-store"
+    assert health.headers["x-content-type-options"] == "nosniff"
+    assert health.headers["x-request-id"]
+
+
 def test_login_lockout_persists_and_no_credentials_are_audited(
     api: APIHarness, password_hash: str
 ) -> None:

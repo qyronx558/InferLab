@@ -122,15 +122,17 @@ frontend client in this stage.
 ## Sessions, errors and audits
 
 Argon2id uses the maintained argon2-cffi `PasswordHasher`. Opaque session tokens
-are generated with `secrets`; only their SHA-256 digests are stored. Sessions expire
-after 12 hours; cookies are host-only, Secure, HttpOnly, SameSite=Strict. A new login
-revokes prior sessions, and logout revokes the current session. Login requires the
-exact configured Origin, and mutations additionally require `X-CSRF-Token`.
-Host accepts only localhost/127.0.0.1; credentialed CORS allows the exact HTTPS
-console origin. Five failed passwords lock login for 15 minutes, persisted across
-restart. Existing sessions are not implicitly revoked by password-hash changes:
-operator recovery must stop the API, clear `admin_sessions` in a database transaction,
-replace the hash and restart before accepting requests again.
+are generated with `secrets`; only an HMAC-SHA256 digest keyed by the configured
+password hash is stored. Sessions expire after 12 hours; cookies are host-only,
+Secure, HttpOnly, SameSite=Strict. A new login revokes prior sessions, and logout
+revokes the current session. Login requires the exact configured Origin, and
+mutations additionally require `X-CSRF-Token`. Host accepts only
+localhost/127.0.0.1; credentialed CORS allows the exact HTTPS console origin. Five
+failed passwords lock login for 15 minutes, persisted across restart. Changing
+`INFERLAB_ADMIN_PASSWORD_HASH` changes the session lookup key, so all existing
+sessions become unusable immediately. Stop the API, replace the hash and restart;
+no manual session-table deletion is required. See
+[ADR-002](ADR-002-single-admin-auth.md) for the authentication decision.
 
 Application errors use `{error: {code, message, request_id}}`, with no request body,
 SQL, trace, local path, engine response or password echoed. Typical statuses:
