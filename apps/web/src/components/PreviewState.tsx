@@ -8,6 +8,7 @@ import {
   useExperimentsQuery,
   usePublishedReportsQuery,
   useRegistryQuery,
+  useRunMetricsQuery,
 } from '@/api/hooks';
 import type { MockScenario } from '@/api/mock-api';
 
@@ -26,11 +27,15 @@ export function PreviewState({ children }: { children: ReactNode }) {
             : 'success';
   const registry = useRegistryQuery(scenario);
   const experiments = useExperimentsQuery(scenario);
+  const runs = useRunMetricsQuery(scenario);
   const reports = usePublishedReportsQuery(scenario);
   const state =
-    [resourceState(registry), resourceState(experiments), resourceState(reports)].find(
-      (value) => value !== 'complete',
-    ) ?? 'complete';
+    [
+      resourceState(registry),
+      resourceState(experiments),
+      resourceState(runs),
+      resourceState(reports),
+    ].find((value) => value !== 'complete') ?? 'complete';
   const reset = () => setParams({});
   if (preview === 'empty')
     return (

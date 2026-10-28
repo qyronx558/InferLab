@@ -8,6 +8,7 @@ const names: Record<string, string> = {
   '/': 'Overview',
   '/experiments': 'Experiments',
   '/compare': 'Compare',
+  '/compare/report': 'Comparison report',
   '/models': 'Models',
   '/reports': 'Reports',
   '/methodology': 'Methodology',

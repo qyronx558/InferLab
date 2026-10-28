@@ -39,15 +39,21 @@ alone never carries state. Chart bars have a text equivalent. Motion respects
 - `MetricCard`: label, fixture value, optional unit and context.
 - `EmptyState`, `ErrorState`, `Skeleton`: explicit feedback with recovery controls or loading labels.
 - `ExperimentTable`: semantic headers/caption, dense rows, scrollable on small screens.
+- `PlotlyChart`: lazily loaded Plotly renderer with an accessible text fallback.
+- `ComparisonChart`, `ComparisonContext`, `ComparisonMetricTable`, `ComparisonNotice`:
+  six metric views with revision, quantization, prompt, sample and hardware context;
+  unavailable values are never plotted as zero and uncontrolled comparisons carry a
+  no-causation notice.
 
 The source-owned shadcn primitives (Button, Badge, Card, Table, Skeleton, Sheet)
 live under `src/components/ui`; their attribution is in `THIRD_PARTY_NOTICES.md`.
 `components.json` and the `@` alias support future component additions.
 
-Routes: `/` (Overview), `/experiments`, `/compare`, `/models`, `/reports`, and
-`/methodology`; unknown paths show a recovery link. Experiment search/status
-filters, model selection, report expansion and synthetic JSON export work locally.
-There is no API client, authentication, model download or experiment submission.
+Routes: `/` (Overview), `/experiments`, `/compare`, `/compare/report`, `/models`,
+`/reports`, and `/methodology`; unknown paths show a recovery link. Experiment
+search/status filters, model selection, report expansion, comparison exports and the
+printable report work locally. The public mock adapter makes no HTTP requests; the
+authenticated admin console under `/admin` uses a separate typed HTTP client.
 
 The header/mobile preview selector or `?state=empty`, `?state=error`, and
 `?state=loading` lets reviewers inspect reusable feedback states. Those states are
@@ -70,11 +76,11 @@ npm.cmd exec --workspace @inferlab/web -- playwright install chromium
 npm.cmd run test:e2e
 ```
 
-Vitest checks navigation/disclosures, filters, comparison changes, feedback
-recovery and report availability. Playwright checks all six routes on desktop and
-mobile, keyboard skip navigation, mobile focus containment/restoration, JSON
-download labeling, page overflow and automated WCAG A/AA checks using axe. It also
-checks that public routes make no backend requests. Automated checks complement
-manual layout and keyboard review; they are not a full accessibility certification.
-Browser artifacts stay under ignored `.cache/`; hosted CI continues to run CPU
-unit tests/build without downloading models or browsers.
+Vitest checks navigation/disclosures, filters, comparison changes and context,
+CSV/JSON exports, feedback recovery and printable report availability. Playwright
+checks all seven routes on desktop and mobile, keyboard skip navigation, mobile focus
+containment/restoration, comparison/report download labeling, page overflow and
+automated WCAG A/AA checks using axe. It also checks that public routes make no backend
+requests. Automated checks complement manual layout and keyboard review; they are not
+a full accessibility certification. Browser artifacts stay under ignored `.cache/`;
+hosted CI continues to run CPU unit tests/build without downloading models or browsers.

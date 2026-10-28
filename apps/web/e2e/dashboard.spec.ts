@@ -1,7 +1,15 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const routes = ['/', '/experiments', '/compare', '/models', '/reports', '/methodology'];
+const routes = [
+  '/',
+  '/experiments',
+  '/compare',
+  '/compare/report',
+  '/models',
+  '/reports',
+  '/methodology',
+];
 
 test('cached published fixtures survive network offline and an offline worker', async ({
   page,
@@ -84,6 +92,46 @@ test('keyboard navigation, mobile dialog focus and route transitions work', asyn
   await expect(page.getByText('Nothing here yet')).toBeVisible();
   await page.getByRole('button', { name: 'Reset preview' }).click();
   await expect(page.getByText('6 demo experiments')).toBeVisible();
+});
+
+test('comparison exports carry context and reject causal claims', async ({ page }) => {
+  await page.goto('/compare');
+  await expect(page.getByRole('heading', { name: 'Six views of the selected runs' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Comparison context' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Decode throughput' })).toBeVisible();
+  await expect(page.locator('.plotly-chart[aria-busy="false"]')).toHaveCount(6);
+  await expect(page.locator('.plotly-chart .plot-container')).toHaveCount(6);
+  await expect(page.locator('.plotly-chart').nth(2)).toContainText('Unavailable');
+  await expect(page.locator('.plotly-chart').nth(5)).toContainText('Unavailable');
+
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'JSON' }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe('inferlab-compare-demo.json');
+  const stream = await download.createReadStream();
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream) chunks.push(Buffer.from(chunk));
+  const payload = JSON.parse(Buffer.concat(chunks).toString()) as {
+    label: string;
+    synthetic: boolean;
+    observational: boolean;
+    causal_claim: boolean;
+    sides: Array<{
+      model: { revision: string; quantization: string };
+      prompt: { distribution: string; sample_count: number };
+      hardware: unknown;
+    }>;
+  };
+  expect(payload.label).toBe('DEMO DATA');
+  expect(payload.synthetic).toBe(true);
+  expect(payload.observational).toBe(true);
+  expect(payload.causal_claim).toBe(false);
+  expect(payload.sides).toHaveLength(2);
+  expect(payload.sides[0]?.model.revision).toBeTruthy();
+  expect(payload.sides[0]?.model.quantization).toBeTruthy();
+  expect(payload.sides[0]?.prompt.distribution).toBeTruthy();
+  expect(payload.sides[0]?.prompt.sample_count).toBeGreaterThan(0);
+  expect(payload.sides[0]?.hardware).toBeTruthy();
 });
 
 test('report downloads are labeled synthetic JSON', async ({ page }) => {

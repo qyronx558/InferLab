@@ -1,17 +1,20 @@
-import { ArrowLeftRight, Info } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { ArrowDownToLine, ArrowLeftRight, Printer } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { PageHeading } from '@/components/PageHeading';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableCaption,
-} from '@/components/ui/table';
 import { useDemoData } from '@/api/hooks';
+import { ComparisonChart } from '@/components/comparison/ComparisonChart';
+import { ComparisonContext } from '@/components/comparison/ComparisonContext';
+import { ComparisonMetricTable } from '@/components/comparison/ComparisonMetricTable';
+import { ComparisonNotice } from '@/components/comparison/ComparisonNotice';
+import {
+  buildComparisonCsv,
+  buildComparisonExport,
+  comparisonDataLabel,
+  comparisonMetrics,
+} from '@/data/comparison';
+import { downloadText } from '@/lib/download';
 
 export function Compare() {
   const { demoModels } = useDemoData();
@@ -20,46 +23,109 @@ export function Compare() {
   const right = demoModels.find((model) => model.id === params.get('right')) ?? demoModels[1];
   if (!left || !right)
     return <p role="status">Two demo model configurations are required to compare.</p>;
+
   const choose = (side: string, value: string) => {
     const next = new URLSearchParams(params);
     next.set(side, value);
     setParams(next);
   };
+  const dataLabel = comparisonDataLabel(left, right);
+  const reportHref = `/compare/report?${new URLSearchParams({
+    left: left.id,
+    right: right.id,
+  }).toString()}`;
+  const fileStem =
+    dataLabel === 'DEMO DATA' ? 'demo' : dataLabel === 'MIXED DATA' ? 'mixed' : 'measured';
+  const exportJson = () => {
+    downloadText(
+      `inferlab-compare-${fileStem}.json`,
+      'application/json',
+      JSON.stringify(buildComparisonExport(left, right), null, 2),
+    );
+  };
+  const exportCsv = () => {
+    downloadText(
+      `inferlab-compare-${fileStem}.csv`,
+      'text/csv;charset=utf-8',
+      buildComparisonCsv(left, right),
+    );
+  };
+
   return (
     <>
       <PageHeading
-        eyebrow="SIDE-BY-SIDE EXPLORATION"
+        eyebrow="OBSERVATIONAL COMPARISON"
         title="Compare models"
-        description="Put example configurations side by side. Context comes before conclusions."
+        description="Compare fixture values with revision, quantization, prompt distribution, sample count and hardware context attached to every chart."
+        action={
+          <div className="flex flex-wrap gap-2 print:hidden">
+            <Button variant="outline" size="sm" onClick={exportCsv}>
+              <ArrowDownToLine size={15} aria-hidden="true" />
+              CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportJson}>
+              <ArrowDownToLine size={15} aria-hidden="true" />
+              JSON
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to={reportHref}>
+                <Printer size={15} aria-hidden="true" />
+                Printable report
+              </Link>
+            </Button>
+          </div>
+        }
       />
       <div className="mb-6 grid items-center gap-4 md:grid-cols-[1fr_auto_1fr]">
         {(['left', 'right'] as const)
-          .map((side, index) => (
-            <Card key={side} className="shadow-none">
-              <CardContent className="p-5">
-                <label className="block">
-                  <span className="mb-3 block text-xs font-medium text-muted-foreground">
-                    {index === 0 ? 'CONFIGURATION A' : 'CONFIGURATION B'}
-                  </span>
-                  <select
-                    className="native-select w-full"
-                    aria-label={`Configuration ${index === 0 ? 'A' : 'B'}`}
-                    value={side === 'left' ? left.id : right.id}
-                    onChange={(e) => choose(side, e.target.value)}
-                  >
-                    {demoModels.map((model) => (
-                      <option key={model.id} value={model.id}>
-                        {model.name} · {model.size}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <p className="mt-3 font-mono text-xs text-muted-foreground">
-                  Ollama / Q4_K_M / demo-only revision
-                </p>
-              </CardContent>
-            </Card>
-          ))
+          .map((side, index) => {
+            const selected = side === 'left' ? left : right;
+            return (
+              <Card key={side} className="shadow-none">
+                <CardContent className="p-5">
+                  <label className="block">
+                    <span className="mb-3 block text-xs font-medium text-muted-foreground">
+                      {index === 0 ? 'CONFIGURATION A' : 'CONFIGURATION B'}
+                    </span>
+                    <select
+                      className="native-select w-full"
+                      aria-label={`Configuration ${index === 0 ? 'A' : 'B'}`}
+                      value={selected.id}
+                      onChange={(event) => choose(side, event.target.value)}
+                    >
+                      {demoModels.map((model) => (
+                        <option key={model.id} value={model.id}>
+                          {model.name} · {model.size}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <dl className="comparison-selection-context">
+                    <div>
+                      <dt>Revision</dt>
+                      <dd>{selected.revision}</dd>
+                    </div>
+                    <div>
+                      <dt>Quantization</dt>
+                      <dd>{selected.quantization}</dd>
+                    </div>
+                    <div>
+                      <dt>Prompt distribution</dt>
+                      <dd>{selected.promptDistribution}</dd>
+                    </div>
+                    <div>
+                      <dt>Sample count</dt>
+                      <dd>{selected.sampleCount}</dd>
+                    </div>
+                    <div>
+                      <dt>Hardware</dt>
+                      <dd>{selected.hardwareLabel}</dd>
+                    </div>
+                  </dl>
+                </CardContent>
+              </Card>
+            );
+          })
           .flatMap((card, index) =>
             index === 0
               ? [
@@ -74,80 +140,37 @@ export function Compare() {
               : [card],
           )}
       </div>
-      <div className="mb-6 flex gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-900">
-        <Info size={17} className="shrink-0" aria-hidden="true" />
-        <p>
-          {left.id === right.id
-            ? 'The same demo model is selected on both sides.'
-            : 'Different model revisions and architectures are not a controlled baseline.'}{' '}
-          These synthetic values demonstrate the interface; they cannot establish a speedup or
-          quality advantage.
-        </p>
-      </div>
-      <section className="rounded-xl border bg-white">
-        <div className="panel-header">
+      <ComparisonNotice left={left} right={right} />
+      <ComparisonContext left={left} right={right} dataLabel={dataLabel} />
+      <section className="comparison-chart-section" aria-labelledby="comparison-charts-heading">
+        <div className="comparison-chart-section-heading">
           <div>
-            <h2 className="section-title">Example metrics</h2>
-            <p className="mt-1 text-xs text-muted-foreground">
-              DEMO DATA · missing metrics remain unavailable
+            <h2 id="comparison-charts-heading" className="section-title">
+              Six views of the selected runs
+            </h2>
+            <p>
+              Every chart repeats the same context strip. Aggregate throughput is derived from
+              accepted run tokens and request latency, not copied from the summary.
             </p>
           </div>
+          <span className="subtle-tag">{dataLabel}</span>
         </div>
-        <div
-          className="table-scroll"
-          role="region"
-          aria-label="Model comparison table"
-          tabIndex={0}
-        >
-          <Table>
-            <TableCaption className="sr-only">
-              Synthetic model comparison. All values are demo data.
-            </TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Metric</TableHead>
-                <TableHead>
-                  {left.name} · {left.size}
-                </TableHead>
-                <TableHead>
-                  {right.name} · {right.size}
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[
-                [
-                  'Decode throughput',
-                  left.throughput === null ? 'Unavailable' : `${left.throughput} tok/s`,
-                  right.throughput === null ? 'Unavailable' : `${right.throughput} tok/s`,
-                ],
-                [
-                  'Time to first token',
-                  left.ttft === null ? 'Unavailable' : `${left.ttft} ms`,
-                  right.ttft === null ? 'Unavailable' : `${right.ttft} ms`,
-                ],
-                [
-                  'Illustrative VRAM',
-                  left.memory === null ? 'Unavailable' : `${left.memory} MiB`,
-                  right.memory === null ? 'Unavailable' : `${right.memory} MiB`,
-                ],
-                ['Quantization', left.quantization, right.quantization],
-                ['Quality evaluation', 'Unavailable', 'Unavailable'],
-                ['Measured sample size', 'Not measured', 'Not measured'],
-              ].map(([label, a, b]) => (
-                <TableRow key={label}>
-                  <TableCell className="font-medium">{label}</TableCell>
-                  <TableCell className="font-mono text-xs">{a}</TableCell>
-                  <TableCell className="font-mono text-xs">{b}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div className="comparison-chart-grid">
+          {comparisonMetrics.map((metric) => (
+            <ComparisonChart
+              key={metric.key}
+              metric={metric}
+              left={left}
+              right={right}
+              dataLabel={dataLabel}
+            />
+          ))}
         </div>
       </section>
-      <p className="mt-4 text-xs leading-6 text-muted-foreground">
-        Example settings: warm inference · 2K context · 256-token output budget · concurrency 1.
-        Model checksums and actual runs will be required before publishing measurements.
+      <ComparisonMetricTable left={left} right={right} dataLabel={dataLabel} />
+      <p className="comparison-footer-note">
+        Demo fixtures only. No model, engine or GPU is connected. These comparisons are
+        observational, not controlled experiments, and do not establish causation.
       </p>
     </>
   );

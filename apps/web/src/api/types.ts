@@ -11,6 +11,7 @@ export type RunMetrics = components['schemas']['RunMetrics'];
 export type Result = components['schemas']['Result'];
 export type Summary = components['schemas']['Summary'];
 export type PublishedReport = components['schemas']['PublishedReport'];
+export type Provenance = components['schemas']['Provenance'];
 export type WorkerHeartbeat = components['schemas']['WorkerHeartbeat'];
 export type Registry = components['schemas']['Registry'];
 export type Experiment = components['schemas']['Experiment'];

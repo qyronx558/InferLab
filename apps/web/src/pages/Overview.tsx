@@ -92,11 +92,14 @@ export function Overview() {
                   <div className="bar-track">
                     <div
                       className="bar"
-                      style={{ width: `${(model.throughput ?? 0) * 2}%`, background: model.color }}
+                      style={{
+                        width: `${(model.measurements.decodeThroughput.value ?? 0) * 2}%`,
+                        background: model.color,
+                      }}
                     />
                   </div>
                   <span className="text-right font-mono text-xs">
-                    {model.throughput?.toFixed(1) ?? 'Unavailable'}
+                    {model.measurements.decodeThroughput.value?.toFixed(1) ?? 'Unavailable'}
                   </span>
                 </div>
               ))}
