@@ -132,10 +132,14 @@ checks on pull requests and pushes to main with no GPU or secrets. See
 scanning guidance and the boundary around owner-written benchmark algorithms.
 
 The public dashboard routes are Overview (`/`), Experiments, Compare, Models, Reports
-and Methodology. Search/filter experiments, change comparison models, inspect
-feedback states with the header's preview selector, and export clearly labeled demo
-JSON. The authenticated admin console is under `/admin` (login, experiment list,
-new experiment and experiment detail). See [the design-system guide](docs/DESIGN-SYSTEM.md)
+and Methodology, plus the printable comparison report at `/compare/report`.
+Search/filter experiments, change comparison models, inspect feedback states with the
+header's preview selector, and export clearly labeled demo JSON. Compare renders six
+lazily loaded Plotly views with model revision, quantization, prompt distribution,
+sample count and hardware context beside each value; CSV/JSON exports and the printable
+report carry the same context and an observational, no-causation notice. The
+authenticated admin console is under `/admin` (login, experiment list, new experiment
+and experiment detail). See [the design-system guide](docs/DESIGN-SYSTEM.md)
 for components, tokens and accessibility conventions. Optional local browser checks:
 
 ```powershell

@@ -5,6 +5,7 @@ import { PreviewState } from '@/components/PreviewState';
 import { Overview } from '@/pages/Overview';
 import { Experiments } from '@/pages/Experiments';
 import { Compare } from '@/pages/Compare';
+import { CompareReport } from '@/pages/CompareReport';
 import { Models } from '@/pages/Models';
 import { Reports } from '@/pages/Reports';
 import { Methodology } from '@/pages/Methodology';
@@ -45,6 +46,14 @@ export function AppRoutes() {
           element={
             <PreviewState>
               <Compare />
+            </PreviewState>
+          }
+        />
+        <Route
+          path="compare/report"
+          element={
+            <PreviewState>
+              <CompareReport />
             </PreviewState>
           }
         />

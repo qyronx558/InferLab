@@ -56,10 +56,12 @@ export function resourceState(query: {
 export function useDemoData() {
   const registry = useRegistryQuery();
   const experiments = useExperimentsQuery();
+  const runs = useRunMetricsQuery();
   const reports = usePublishedReportsQuery();
   if (
     registry.data?.state !== 'complete' ||
     experiments.data?.state !== 'complete' ||
+    runs.data?.state !== 'complete' ||
     reports.data?.state !== 'complete'
   ) {
     throw new Error('Demo pages must render inside the ready contract boundary');
@@ -67,8 +69,9 @@ export function useDemoData() {
   return toDashboardView({
     registry: registry.data,
     experiments: experiments.data,
+    runs: runs.data,
     reports: reports.data,
   });
 }
 
-export type ReadyDashboard = Pick<ContractCatalog, 'registry' | 'experiments' | 'reports'>;
+export type ReadyDashboard = Pick<ContractCatalog, 'registry' | 'experiments' | 'runs' | 'reports'>;
