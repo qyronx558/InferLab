@@ -21,7 +21,12 @@ Admin-approved local export --reviewed deployment--> Pages release
 
 Frontend target: React, TypeScript, Vite, Tailwind, shadcn/ui, TanStack Query; Plotly when needed. Backend target: Python, FastAPI, Pydantic, SQLAlchemy. SQLite is sufficient for the single-machine MVP; PostgreSQL compatibility and migrations are a later gate before adopting Neon. No Redis, cloud queue, Pages Functions, cloud database, or always-on cloud API is required for MVP.
 
-Local API and inference engines bind only to loopback. Admin UI is served on the local API origin behind locally trusted TLS; public Pages never calls localhost. Worker accesses the local queue through shared application contracts and its own database connection, not a publicly addressable worker HTTP server. Remote admin requires a separate reviewed, authenticated access design and is stretch.
+Local API and inference engines bind only to loopback. The admin console is served
+from the configured local HTTPS origin (separate from public Pages) and calls the
+loopback API with session/CSRF protection; public Pages never calls localhost.
+Worker accesses the local queue through shared application contracts and its own
+database connection, not a publicly addressable worker HTTP server. Remote admin
+requires a separate reviewed, authenticated access design and is stretch.
 
 ## Public read API: static resources
 
@@ -44,9 +49,10 @@ Implemented endpoint scope and setup are in [API.md](API.md). FastAPI also offer
 unauthenticated local read mirrors at `/api/v1/public/reports`,
 `/api/v1/public/reports/{id}` and `/api/v1/public/metadata`, backed exclusively by
 stored published snapshots. This does not deploy a cloud API or replace the
-independent public static export. The dashboard still uses explicit demo fixtures.
-The table below includes future worker/publication routes; those are not exposed
-by this CRUD stage. Current experiment detail returns config and latest job;
+independent public static export. The public dashboard still uses explicit demo
+fixtures; the authenticated `/admin` console uses the live API. The table below
+includes future worker/publication routes; only `GET /worker` is exposed from that
+group by this stage. Current experiment detail returns config and latest job;
 attempt-history/metric pagination remains future work.
 
 Prefix `/api/v1`; every route below requires the single-admin session except explicit authentication bootstrap. Authenticated non-admin identities are denied; hiding controls is not authorization.
@@ -64,13 +70,13 @@ Prefix `/api/v1`; every route below requires the single-admin session except exp
 | DELETE `/experiments/{id}` | Archive private metadata with expected version; preserve evidence, idempotency tombstones and published snapshots. Active jobs must acknowledge cancellation first. |
 | POST `/experiments/{id}/cancel` | Idempotent cancellation request; queued jobs cancel immediately, active jobs acknowledge after stopping. Completed jobs return conflict. |
 | POST `/experiments/{id}/retry` | Explicit retry of failed/cancelled experiment creates a linked new job; enforces limits and idempotency. |
-| GET `/worker` | Availability, last heartbeat, active job and stop-switch state. |
+| GET `/worker` | Read-only availability, last heartbeat, active job and stop-switch state. No heartbeat is `unknown`; a heartbeat within 90 seconds is `online`; offline/unknown never claims live execution. |
 | POST `/worker/pause` | Stop new claims and request cancellation of active work. Resume requires explicit admin action via `POST /worker/resume`. |
 | POST `/publications/preview` | Validate completed experiment IDs and generate exact sanitized staged release; no deployment. |
 | POST `/publications` | Approve a preview hash and record immutable export/audit entry; returns staged release, not a claim that it is publicly deployed. |
 | GET `/publications/{id}` | Export validation, approval and separately recorded deployment outcome. |
 
-Deployment/withdrawal is an explicit admin-operated release step using a scoped deployment credential kept outside the browser and repository. MVP has no public publishing webhook. Worker operations (claim, start, renew, finish, fail, acknowledge cancellation) are internal application/database contracts, not admin-accessible arbitrary job-state setters.
+Deployment/withdrawal is an explicit admin-operated release step using a scoped deployment credential kept outside the browser and repository. MVP has no public publishing webhook. Worker pause/resume and publication routes remain future work. Worker operations (claim, start, renew, finish, fail, acknowledge cancellation) are internal application/database contracts, not admin-accessible arbitrary job-state setters.
 
 Errors: 401 missing/expired auth, 403 authorization/origin/CSRF failure, 404 missing resource, 409 state/idempotency conflict, 413 oversized body, 422 invalid config, 429 limit exceeded, 503 unavailable. Responses carry safe error codes and request IDs, never traces/secrets. Mutations use idempotency keys; repeating a key with the same body returns the original outcome, different body returns 409. No automatic client retries of submissions with a new key.
 

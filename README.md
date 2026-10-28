@@ -1,11 +1,12 @@
 # InferLab
 
 Local LLM inference benchmarking with a public, read-only portfolio of reviewed
-results. This is the dashboard design-system preview with engineering guardrails
-(rulebook Prompts 01-04), plus the explicitly authorized CPU metric helpers from
-the tutoring step and a standalone local Ollama HTTP transport. Every displayed result is labeled DEMO DATA. Real
-benchmark algorithms, publishing and cloud deployment are not implemented yet; the
-authenticated local API and private worker queue are.
+results. This is the public dashboard design-system preview with engineering
+guardrails (rulebook Prompts 01-04), plus the explicitly authorized CPU metric
+helpers from the tutoring step and a standalone local Ollama HTTP transport. Public
+displayed results are labeled DEMO DATA. Real benchmark algorithms, publishing and
+cloud deployment are not implemented yet; the authenticated local API, admin
+console and private worker queue are.
 
 ## Windows setup
 
@@ -60,7 +61,8 @@ Use separate PowerShell terminals from the repository root:
 
 Stop development servers with Ctrl+C. `/health` returns
 `{"status":"ok","execution":"not_configured"}`; it reports process liveness,
-not GPU readiness. The web app does not call the API. The worker polls the local
+not GPU readiness. The public site does not call the API; the authenticated
+`/admin` console does. The worker polls the local
 database only after operator configuration and opens no network listener.
 Env example files are not loaded automatically;
 the frontend example sets only a public display title.
@@ -85,11 +87,12 @@ and bulky traces are not database fields. The worker supervises an injected
 owner-authored benchmark plugin; no default benchmark runner is installed.
 
 The [API guide](docs/API.md) documents published-only public reads and authenticated
-experiment CRUD, rename/archive, cancel/retry, pagination, idempotency and errors.
-Admin mutations require locally trusted HTTPS, a provisioned Argon2id password
-hash and CSRF protection. An injected operator admission provider supplies approved
-registry/provenance; the default submission provider returns 503. The dashboard
-remains mock-only, and no worker execution is started by an HTTP request.
+experiment CRUD, rename/archive, cancel/retry, worker heartbeat, pagination,
+idempotency and errors. Admin mutations require locally trusted HTTPS, a provisioned
+Argon2id password hash and CSRF protection. An injected operator admission provider
+supplies approved registry/provenance; the default submission provider returns 503.
+The public dashboard remains mock-only; the authenticated `/admin` console uses the
+live API, and no worker execution is started by an HTTP request.
 
 The [private worker guide](docs/WORKER.md) covers fixed registry policy, exclusive
 GPU/process locks, 120-second fenced leases, heartbeats, one-hour job budgets,
@@ -122,16 +125,18 @@ npm.cmd run preview:web
 
 Expected: contract drift checks, formatting/lint/types/build and CPU-only tests
 pass, worker exits without executing jobs, core wheel builds under `dist/`.
-Frontend tests cover the dashboard and typed local queries. GitHub Actions repeats the
+Frontend tests cover the public dashboard, its typed demo queries and the live admin
+console. GitHub Actions repeats the
 checks on pull requests and pushes to main with no GPU or secrets. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for optional hooks, test conventions, secret
 scanning guidance and the boundary around owner-written benchmark algorithms.
 
-The dashboard routes are Overview (`/`), Experiments, Compare, Models, Reports and
-Methodology. Search/filter experiments, change comparison models, inspect feedback
-states with the header's preview selector, and export clearly labeled demo JSON.
-See [the design-system guide](docs/DESIGN-SYSTEM.md) for components, tokens and
-accessibility conventions. Optional local browser checks:
+The public dashboard routes are Overview (`/`), Experiments, Compare, Models, Reports
+and Methodology. Search/filter experiments, change comparison models, inspect
+feedback states with the header's preview selector, and export clearly labeled demo
+JSON. The authenticated admin console is under `/admin` (login, experiment list,
+new experiment and experiment detail). See [the design-system guide](docs/DESIGN-SYSTEM.md)
+for components, tokens and accessibility conventions. Optional local browser checks:
 
 ```powershell
 npm.cmd exec --workspace @inferlab/web -- playwright install chromium
@@ -150,10 +155,11 @@ npm.cmd run contracts:generate
 npm.cmd run contracts:check
 ```
 
-The mock adapter makes no HTTP requests. Worker offline and API unavailable are
-distinct from job failure; cached published demo reports remain readable. All
-fixture numbers/checksums are synthetic. No benchmark math or new endpoints are
-implemented by the contract layer.
+The public mock adapter makes no HTTP requests. Worker offline and API unavailable
+are distinct from job failure; cached published demo reports remain readable. The
+admin console uses a separate typed HTTP client with runtime response validation.
+All public fixture numbers/checksums are synthetic. No benchmark math or new public
+endpoints are implemented by the contract layer.
 
 The [metric guide](docs/METRICS.md) explains the implemented TTFT, TPOT, throughput,
 elapsed-time and dense KV-cache helpers. This step was AI-assisted at the owner's

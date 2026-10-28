@@ -1,14 +1,17 @@
 import { SearchX } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 
 export function EmptyState({
   title = 'Nothing here yet',
   description = 'No demo experiments match these filters.',
   onReset,
+  action,
 }: {
   title?: string;
   description?: string;
   onReset?: () => void;
+  action?: ReactNode;
 }) {
   return (
     <div className="state-panel" role="status">
@@ -22,6 +25,7 @@ export function EmptyState({
           Reset preview
         </Button>
       )}
+      {action}
     </div>
   );
 }

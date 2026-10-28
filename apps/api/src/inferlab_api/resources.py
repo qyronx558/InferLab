@@ -4,7 +4,7 @@ import hashlib
 import json
 import secrets
 from datetime import datetime, timedelta
-from typing import Annotated, Any, cast
+from typing import Annotated, Any, Literal, cast
 
 import sqlalchemy as sa
 from fastapi import APIRouter, Depends, Header, Query, Request
@@ -17,6 +17,7 @@ from .contracts import (
     Identifier,
     JobPhase,
     Registry,
+    WorkerHeartbeat,
     _validate_provenance,
     validate_submission,
 )
@@ -31,6 +32,7 @@ from .database.models import (
     Job,
     ModelRegistry,
     PublishedReport,
+    WorkerControl,
 )
 from .dependencies import RunnerPort, get_runner
 from .errors import APIError
@@ -160,6 +162,42 @@ def ensure_capacity(session: Session, now: datetime) -> None:
 @router.get("/registry", response_model=Registry, tags=["admin"])
 def registry(identity: Admin, runner: Runner) -> Registry:
     return runner.registry()
+
+
+@router.get("/worker", response_model=WorkerHeartbeat, tags=["admin"])
+def worker_status(identity: Admin, session: DB, now: Clock) -> WorkerHeartbeat:
+    """Report the last durable heartbeat without claiming a live execution."""
+    control = session.get(WorkerControl, 1)
+    active = session.scalars(sa.select(Job).where(Job.active_slot == 1).limit(1)).first()
+    last_seen = control.last_heartbeat_at if control is not None else None
+    worker_id = (control.worker_id if control is not None else None) or "unknown"
+    paused = bool(control.paused) if control is not None else False
+    if last_seen is None:
+        return WorkerHeartbeat(
+            availability="unknown",
+            worker_id=worker_id,
+            observed_at=now,
+            last_seen_at=None,
+            mode=None,
+            active_job_id=None,
+            paused=paused,
+        )
+
+    online = (now - last_seen).total_seconds() <= 90
+    mode: Literal["idle", "running"] | None = None
+    active_job_id: str | None = None
+    if online:
+        mode = "running" if active is not None else "idle"
+        active_job_id = active.id if active is not None else None
+    return WorkerHeartbeat(
+        availability="online" if online else "offline",
+        worker_id=worker_id,
+        observed_at=now,
+        last_seen_at=last_seen,
+        mode=mode,
+        active_job_id=active_job_id,
+        paused=paused,
+    )
 
 
 @router.post("/experiments", response_model=ExperimentResource, status_code=202, tags=["admin"])

@@ -2,8 +2,9 @@
 
 This stage implements persisted CRUD and published-only reads. It does not run
 benchmarks, start a shell, load/download models, publish new reports, or dispatch
-GPU work. The web dashboard remains explicitly mocked. The public website still
-uses static exports and works independently of this local API.
+GPU work. The public website still uses static exports and works independently of
+this local API. The authenticated admin console under `/admin` uses this API; the
+public dashboard continues to use explicit demo fixtures.
 
 ## Endpoints
 
@@ -26,6 +27,7 @@ still binds to loopback and must not be internet exposed.
 | Admin | `DELETE /experiments/{id}` | Archive; `{expected_version}`, returns archived record |
 | Admin | `POST /experiments/{id}/cancel` | Cancel queued work or request cooperative cancellation |
 | Admin | `POST /experiments/{id}/retry` | 202; new queued job linked to same experiment, retain old job |
+| Admin | `GET /worker` | Last durable heartbeat, availability, active job and pause state |
 
 Pagination sorts ascending by immutable resource ID. Limits are 1–100, default
 20. The next cursor is the last returned ID when another item exists. Cursors
@@ -63,6 +65,12 @@ record and preserves evidence. Renames affect administrative labels only. Archiv
 does not withdraw a published snapshot. Explicit retries revalidate allowlists,
 pins and recorded hardware/driver/methodology identity; changed provenance needs
 a new experiment ID.
+
+`GET /worker` is read-only. No heartbeat returns `availability="unknown"`; a
+heartbeat within 90 seconds is `online`, otherwise `offline`. Online reports `idle`
+or `running` with the active job ID; offline/unknown never claims live execution.
+The persisted pause flag is returned separately. This route does not claim that
+the worker is healthy, that a model is resident, or that GPU work has started.
 
 Existing config caps apply: context 8192, output 2048, warmups 5, repetitions 20,
 concurrency exactly 1, deadline 3600 seconds, GPU layers 0–200 plus narrower operator
@@ -116,8 +124,9 @@ admission provider into an operator-owned factory and run `uvicorn module:factor
 
 The schema-only dashboard catalog at `contracts/openapi.json` remains unchanged.
 The running app's `/openapi.json` documents actual routes and cookie authentication;
-the Pydantic HTTP models are in `inferlab_api/http_contracts.py`. There is no live
-frontend client in this stage.
+the Pydantic HTTP models are in `inferlab_api/http_contracts.py`. The authenticated
+admin console uses a typed client with runtime response validation and does not
+reuse the public dashboard's demo fixture adapter.
 
 ## Sessions, errors and audits
 

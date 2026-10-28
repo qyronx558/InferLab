@@ -30,6 +30,7 @@ from inferlab_api.database.models import (
     ModelRegistry,
     PublishedReport,
     RunMetric,
+    WorkerControl,
     report_payload_sha256,
 )
 from inferlab_api.database.session import create_database_engine
@@ -259,6 +260,7 @@ def test_public_views_only_published_snapshots(api: APIHarness) -> None:
     "method,path,body",
     [
         ("GET", "/registry", None),
+        ("GET", "/worker", None),
         ("GET", "/experiments", None),
         ("GET", "/experiments/EXP-api", None),
         ("POST", "/experiments", {}),
@@ -272,6 +274,54 @@ def test_private_routes_deny_public(api: APIHarness, method: str, path: str, bod
     api.client.cookies.clear()
     response = api.client.request(method, BASE + path, json=body)
     assert response.status_code == 401
+
+
+def test_worker_status_uses_durable_heartbeat_without_claiming_execution(
+    api: APIHarness,
+) -> None:
+    unknown = api.client.get(BASE + "/worker")
+    assert unknown.status_code == 200
+    assert unknown.json() == {
+        "availability": "unknown",
+        "worker_id": "unknown",
+        "observed_at": "2026-10-23T12:00:00Z",
+        "last_seen_at": None,
+        "mode": None,
+        "active_job_id": None,
+        "paused": False,
+    }
+
+    assert api.submit().status_code == 202
+    job_id = set_phase(api, "running")
+    with Session(api.engine) as session:
+        control = session.get(WorkerControl, 1)
+        assert control is not None
+        control.worker_id = "worker-test"
+        control.last_heartbeat_at = api.clock() - timedelta(seconds=10)
+        session.commit()
+
+    online = api.client.get(BASE + "/worker")
+    assert online.status_code == 200
+    assert online.json()["availability"] == "online"
+    assert online.json()["worker_id"] == "worker-test"
+    assert online.json()["mode"] == "running"
+    assert online.json()["active_job_id"] == job_id
+    assert online.json()["paused"] is False
+
+    with Session(api.engine) as session:
+        control = session.get(WorkerControl, 1)
+        assert control is not None
+        control.paused = True
+        control.last_heartbeat_at = api.clock() - timedelta(seconds=91)
+        session.commit()
+
+    offline = api.client.get(BASE + "/worker")
+    assert offline.status_code == 200
+    assert offline.json()["availability"] == "offline"
+    assert offline.json()["last_seen_at"] == "2026-10-23T11:58:29Z"
+    assert offline.json()["mode"] is None
+    assert offline.json()["active_job_id"] is None
+    assert offline.json()["paused"] is True
 
 
 def test_crud_versions_archive_and_idempotency(api: APIHarness) -> None:
