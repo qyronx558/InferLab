@@ -50,7 +50,8 @@ fails checks; generated files are never silently fixed during CI.
 - **Experiment / Job / SubmissionReceipt:** stable IDs, resolved provenance, config,
   lifecycle phase, display state, attempt number, aware timestamps, cancellation
   request flag and safe error code. Receipt means pending/queued, never successful
-  execution. No mock mutation hook submits, retries, cancels or persists a job.
+  execution. The public mock adapter has no mutation hook that submits, retries,
+  cancels or persists a job; the separate authenticated admin client does.
 - **RunMetrics / Summary:** typed `ms`, `tok/s`, `MiB` and `score` measurements,
   input/output counts, warmup/measured kind, condition, repetition, attempt, run IDs,
   error code, accepted sample count and precomputed summary values. No timing,
@@ -110,7 +111,7 @@ Each app/provider has its own QueryClient. Local demo snapshots seed the success
 cache. Keys include contract version, resource and scenario so an error preview
 cannot poison the success cache. Retry, reconnect/window-focus refetch and polling
 are disabled. `networkMode: "always"` is safe here because reads are local fixtures;
-it must not be copied blindly into a future authenticated live submission client.
+the authenticated admin console uses a separate provider and HTTP client instead.
 No offline mutation is queued or replayed. The worker fixture is offline while
 published report reads remain complete.
 

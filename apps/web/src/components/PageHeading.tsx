@@ -5,15 +5,17 @@ export function PageHeading({
   title,
   description,
   action,
+  titleSuffix = 'InferLab demo',
 }: {
   eyebrow: string;
   title: string;
   description: string;
   action?: ReactNode;
+  titleSuffix?: string;
 }) {
   useEffect(() => {
-    document.title = `${title} · InferLab demo`;
-  }, [title]);
+    document.title = `${title} · ${titleSuffix}`;
+  }, [title, titleSuffix]);
   return (
     <div className="page-heading">
       <div>

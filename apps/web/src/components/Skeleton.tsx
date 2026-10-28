@@ -1,13 +1,9 @@
 import { Skeleton as Primitive } from '@/components/ui/skeleton';
 
-export function Skeleton() {
+export function Skeleton({ label = 'Loading demo preview' }: { label?: string }) {
   return (
-    <div
-      role="status"
-      aria-label="Loading demo preview"
-      className="space-y-5 rounded-xl border bg-white p-6"
-    >
-      <span className="sr-only">Loading demo preview. This is an illustrative loading state.</span>
+    <div role="status" aria-label={label} className="space-y-5 rounded-xl border bg-white p-6">
+      <span className="sr-only">{label}</span>
       <div aria-hidden="true">
         <Primitive className="h-5 w-40" />
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
