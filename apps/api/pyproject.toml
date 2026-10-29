@@ -18,5 +18,8 @@ dependencies = [
   "argon2-cffi>=25.1,<26",
 ]
 
+[project.scripts]
+inferlab-publish = "inferlab_api.publish:main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/inferlab_api"]

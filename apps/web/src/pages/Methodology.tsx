@@ -2,6 +2,7 @@ import { ArrowRight, Fingerprint, Gauge, Layers3, ShieldCheck } from 'lucide-rea
 import { Link } from 'react-router-dom';
 import { PageHeading } from '@/components/PageHeading';
 import { Card, CardContent } from '@/components/ui/card';
+import { useDemoData } from '@/api/hooks';
 
 const principles = [
   {
@@ -26,13 +27,51 @@ const principles = [
   },
 ];
 export function Methodology() {
+  const { snapshot } = useDemoData();
   return (
     <>
       <PageHeading
         eyebrow="THE MEASUREMENT PLAYBOOK"
         title="Context before conclusions."
-        description="A practical framework for transparent, reproducible inference benchmarks. This page explains the intended method; the dashboard values remain DEMO DATA."
+        description={
+          snapshot.status === 'snapshot'
+            ? 'Metric definitions and protocol from the published static snapshot, alongside the measurement principles used to review it.'
+            : 'A practical framework for transparent, reproducible inference benchmarks. This page explains the intended method; the dashboard values remain DEMO DATA.'
+        }
       />
+      {snapshot.methodology && (
+        <section className="mb-7 rounded-xl border bg-white p-6" aria-labelledby="snapshot-method">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 id="snapshot-method" className="section-title">
+                Published methodology
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Snapshot {snapshot.publishedAt ?? 'date unavailable'} · release{' '}
+                <span className="font-mono">{snapshot.releaseId ?? 'unavailable'}</span> · versions{' '}
+                {snapshot.methodology.methodology_versions.join(', ') || 'none declared'}
+              </p>
+            </div>
+            <span className="subtle-tag">{snapshot.label}</span>
+          </div>
+          <dl className="mt-5 grid gap-5 sm:grid-cols-2">
+            {snapshot.methodology.metrics.map((metric) => (
+              <div key={metric.key}>
+                <dt className="font-mono text-xs font-semibold text-primary">
+                  {metric.label} · {metric.unit}
+                </dt>
+                <dd className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {metric.description}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-5 text-xs leading-5 text-muted-foreground">
+            Conditions: {snapshot.methodology.conditions.join(', ')}. Protocol and limitations are
+            versioned with the release; missing measurements remain unavailable.
+          </p>
+        </section>
+      )}
       <div className="grid gap-5 md:grid-cols-2">
         {principles.map(({ icon: Icon, title, text }, index) => (
           <Card key={title} className="shadow-none">

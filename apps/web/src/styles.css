@@ -283,6 +283,22 @@ h1 {
   color: #304a70;
   font-weight: 600;
 }
+.snapshot-notice {
+  border-color: #bfd9cd;
+  background: #eff8f3;
+  color: #3f6355;
+}
+.snapshot-notice strong {
+  color: #245440;
+}
+.snapshot-notice-error {
+  border-color: #f0c7c2;
+  background: #fff4f2;
+  color: #7a3d36;
+}
+.snapshot-notice-error strong {
+  color: #8a2f25;
+}
 .page-heading {
   display: flex;
   align-items: center;

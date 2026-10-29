@@ -64,13 +64,18 @@ function RunEvidence({ side, label }: { side: ComparisonModel; label: string }) 
 }
 
 export function CompareReport() {
-  const { demoModels } = useDemoData();
+  const { demoModels, snapshot } = useDemoData();
   const [params] = useSearchParams();
   const generatedAt = useMemo(() => new Date().toISOString(), []);
   const left = demoModels.find((model) => model.id === params.get('left')) ?? demoModels[0];
   const right = demoModels.find((model) => model.id === params.get('right')) ?? demoModels[1];
   if (!left || !right)
-    return <p role="status">Two demo model configurations are required to compare.</p>;
+    return (
+      <p role="status">
+        Two {snapshot.status === 'snapshot' ? 'published' : 'demo'} model configurations are
+        required to compare.
+      </p>
+    );
 
   const dataLabel = comparisonDataLabel(left, right);
   const fileStem =
@@ -99,7 +104,9 @@ export function CompareReport() {
       <PageHeading
         eyebrow="PRINTABLE COMPARISON REPORT"
         title="Comparison report"
-        description="A print-ready record of the selected fixture runs, including model, prompt, sample and hardware context. This is an observational comparison, not a controlled experiment."
+        description={`A print-ready record of the selected ${
+          snapshot.status === 'snapshot' ? 'published' : 'fixture'
+        } runs, including model, prompt, sample and hardware context. This is an observational comparison, not a controlled experiment.`}
         action={
           <div className="print-controls flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={() => window.print()}>
@@ -130,6 +137,14 @@ export function CompareReport() {
             <dt>Generated</dt>
             <dd>{generatedAt}</dd>
           </div>
+          {snapshot.publishedAt && (
+            <div>
+              <dt>Snapshot</dt>
+              <dd>
+                {snapshot.publishedAt} · {snapshot.releaseId}
+              </dd>
+            </div>
+          )}
           <div>
             <dt>Configuration A</dt>
             <dd>
@@ -225,7 +240,7 @@ export function CompareReport() {
           <li>
             {dataLabel === 'DEMO DATA'
               ? 'All values are synthetic demo fixtures. No model, engine or GPU is connected.'
-              : 'Values are reported fixture data; confirm provenance before publication.'}
+              : 'Values are from a published static snapshot; confirm provenance and limitations before reuse.'}
           </li>
           <li>
             Aggregate throughput is derived from accepted output tokens and summed request latency.

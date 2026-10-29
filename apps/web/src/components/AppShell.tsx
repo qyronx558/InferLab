@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, Outlet, useLocation, useSearchParams } from 'react-router-dom';
-import { Info } from 'lucide-react';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { useSnapshotInfo } from '@/api/snapshot-context';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { SnapshotNotice } from './SnapshotNotice';
 
 export function AppShell() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
   const previousPath = useRef(pathname);
   const [params, setParams] = useSearchParams();
+  const snapshot = useSnapshotInfo();
   useEffect(() => {
     const heading = document.getElementById('page-heading');
     document.title = `${heading?.textContent ?? 'Dashboard'} · InferLab demo`;
@@ -27,20 +29,17 @@ export function AppShell() {
       <SheetContent side="left" className="mobile-sidebar">
         <SheetTitle className="sr-only">InferLab navigation</SheetTitle>
         <SheetDescription className="sr-only">
-          Choose a dashboard page. All content is demo data.
+          Choose a dashboard page.{' '}
+          {snapshot.status === 'snapshot'
+            ? 'Content is a published static snapshot.'
+            : 'All content is demo data.'}
         </SheetDescription>
         <Sidebar onNavigate={() => setOpen(false)} />
       </SheetContent>
       <div className="workspace">
         <Header />
         <main id="main-content" tabIndex={-1} className="workspace-main">
-          <div className="demo-notice">
-            <Info size={15} className="shrink-0" aria-hidden="true" />
-            <p>
-              <strong>Demo workspace.</strong> All results and statuses are synthetic UI fixtures.
-              No backend or GPU is connected.
-            </p>
-          </div>
+          <SnapshotNotice />
           <label className="mb-5 flex items-center justify-between text-xs text-muted-foreground md:hidden">
             Preview state
             <select
