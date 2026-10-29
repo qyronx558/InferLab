@@ -18,8 +18,47 @@ import { useDemoData } from '@/api/hooks';
 import { useWorkerHeartbeatQuery } from '@/api/hooks';
 
 export function Overview() {
-  const { demoExperiments, demoModels } = useDemoData();
+  const { demoExperiments, demoModels, demoReports, dataLabel, snapshot } = useDemoData();
   const worker = useWorkerHeartbeatQuery();
+  const count = (state: string) => demoExperiments.filter((row) => row.status === state).length;
+  const statusDetail =
+    (
+      [
+        ['complete', 'completed'],
+        ['running', 'running'],
+        ['pending', 'queued'],
+        ['failed', 'failed'],
+        ['cancelled', 'cancelled'],
+        ['unavailable', 'unavailable'],
+      ] as const
+    )
+      .map(([state, label]) => (count(state) ? `${count(state)} ${label}` : null))
+      .filter((value): value is string => value !== null)
+      .join(' · ') || 'No published experiments';
+  const decodeModel = demoModels.find(
+    (model) => model.measurements.decodeThroughput.value !== null,
+  );
+  const decodeValue = decodeModel?.measurements.decodeThroughput.value ?? null;
+  const maxDecode = Math.max(
+    50,
+    ...demoModels.map((model) => model.measurements.decodeThroughput.value ?? 0),
+  );
+  const chartTicks = Array.from({ length: 6 }, (_, index) => Math.round((maxDecode / 5) * index));
+  const chartSummary =
+    demoModels
+      .map(
+        (model) =>
+          `${model.name} ${model.measurements.decodeThroughput.value?.toFixed(1) ?? 'unavailable'}`,
+      )
+      .join(', ') || 'no published models';
+  const firstModel = demoModels[0];
+  const hardware = firstModel?.hardware;
+  const execution =
+    snapshot.status === 'snapshot'
+      ? 'Published snapshot'
+      : worker.data?.state === 'complete'
+        ? `${worker.data.data.availability} (demo)`
+        : 'Unavailable (demo)';
   return (
     <>
       <PageHeading
@@ -37,27 +76,35 @@ export function Overview() {
       <div className="mb-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           label="Experiment runs"
-          value="6"
-          detail="3 completed · 1 running · 1 queued · 1 failed"
+          value={String(demoExperiments.length)}
+          detail={statusDetail}
           icon={FlaskConical}
         />
         <MetricCard
           label="Registered models"
-          value="3"
-          detail="Small language models · 2B–3B"
+          value={String(demoModels.length)}
+          detail={
+            [...new Set(demoModels.map((model) => model.size))].join(' · ') || 'No published models'
+          }
           icon={Boxes}
         />
         <MetricCard
-          label="Illustrative decode rate"
-          value="41.2"
-          unit="tok/s"
-          detail="Llama 3.2 · synthetic warm-run fixture"
+          label={dataLabel === 'DEMO DATA' ? 'Illustrative decode rate' : 'Published decode rate'}
+          value={decodeValue === null ? 'Unavailable' : decodeValue.toFixed(1)}
+          {...(decodeValue === null ? {} : { unit: 'tok/s' })}
+          detail={`${decodeModel?.name ?? 'No published model'} · ${
+            dataLabel === 'DEMO DATA' ? 'synthetic warm-run fixture' : 'published snapshot'
+          }`}
           icon={Gauge}
         />
         <MetricCard
-          label="Demo reports"
-          value="3"
-          detail="Reviewable examples, ready to explore"
+          label={dataLabel === 'DEMO DATA' ? 'Demo reports' : 'Published reports'}
+          value={String(demoReports.length)}
+          detail={
+            dataLabel === 'DEMO DATA'
+              ? 'Reviewable examples, ready to explore'
+              : 'Reviewed static report snapshots'
+          }
           icon={FileChartColumn}
         />
       </div>
@@ -68,20 +115,31 @@ export function Overview() {
               <div>
                 <h2 className="section-title">Model performance at a glance</h2>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Illustrative decode throughput · higher is faster
+                  {dataLabel === 'DEMO DATA' ? 'Illustrative' : 'Published'} decode throughput ·
+                  higher is faster
                 </p>
               </div>
-              <span className="subtle-tag">DEMO DATA</span>
+              <span className="subtle-tag">{dataLabel}</span>
             </div>
             <div className="mb-5 flex flex-wrap gap-2">
-              <span className="chart-chip">Warm inference</span>
-              <span className="chart-chip">Q4_K_M</span>
-              <span className="chart-chip">Concurrency 1</span>
+              <span className="chart-chip">{firstModel?.condition ?? 'Condition unavailable'}</span>
+              <span className="chart-chip">
+                {firstModel?.quantization ?? 'Quantization unavailable'}
+              </span>
+              <span className="chart-chip">
+                Concurrency {firstModel?.concurrency ?? 'unavailable'}
+              </span>
             </div>
             <div
               className="space-y-5"
               role="img"
-              aria-label="Synthetic throughput: Llama 3.2 41.2 tokens per second, Qwen 2.5 36.8, Gemma 2 32.4. These are demo values, not a fair measured model ranking."
+              aria-label={`${
+                dataLabel === 'DEMO DATA' ? 'Synthetic' : 'Published'
+              } throughput: ${chartSummary}. ${
+                dataLabel === 'DEMO DATA'
+                  ? 'These are demo values, not a fair measured model ranking.'
+                  : 'Read the attached context before comparing models.'
+              }`}
             >
               {demoModels.map((model) => (
                 <div key={model.id} className="grid grid-cols-[90px_1fr_48px] items-center gap-3">
@@ -93,7 +151,9 @@ export function Overview() {
                     <div
                       className="bar"
                       style={{
-                        width: `${(model.measurements.decodeThroughput.value ?? 0) * 2}%`,
+                        width: `${
+                          ((model.measurements.decodeThroughput.value ?? 0) / maxDecode) * 100
+                        }%`,
                         background: model.color,
                       }}
                     />
@@ -104,13 +164,15 @@ export function Overview() {
                 </div>
               ))}
               <div className="ml-[102px] mr-[60px] flex justify-between font-mono text-[10px] text-muted-foreground">
-                {[0, 10, 20, 30, 40, 50].map((value) => (
+                {chartTicks.map((value) => (
                   <span key={value}>{value}</span>
                 ))}
               </div>
             </div>
             <p className="mt-5 text-[11px] leading-5 text-muted-foreground">
-              Synthetic chart for interface review. Different models are not an equivalent baseline.
+              {dataLabel === 'DEMO DATA'
+                ? 'Synthetic chart for interface review. Different models are not an equivalent baseline.'
+                : 'Published snapshot values. Different models and conditions are not an equivalent baseline.'}
             </p>
           </CardContent>
         </Card>
@@ -121,28 +183,30 @@ export function Overview() {
               <h2 className="section-title">The local lab</h2>
             </div>
             <p className="mt-2 text-xs leading-5 text-muted-foreground">
-              Example hardware context. No device is connected.
+              {dataLabel === 'DEMO DATA'
+                ? 'Example hardware context. No device is connected.'
+                : 'Hardware context from the published snapshot. No device is connected.'}
             </p>
             <dl className="environment-list">
               <div>
                 <dt>Accelerator</dt>
-                <dd>NVIDIA RTX 4060</dd>
+                <dd>{hardware?.deviceName ?? 'Unavailable'}</dd>
               </div>
               <div>
                 <dt>GPU memory</dt>
-                <dd>8 GB</dd>
+                <dd>
+                  {hardware?.deviceMemoryMib === null || hardware?.deviceMemoryMib === undefined
+                    ? 'Unavailable'
+                    : `${hardware.deviceMemoryMib} MiB`}
+                </dd>
               </div>
               <div>
                 <dt>Inference engine</dt>
-                <dd>Ollama</dd>
+                <dd>{firstModel?.provenance?.engine.name ?? 'Unavailable'}</dd>
               </div>
               <div>
                 <dt>Execution</dt>
-                <dd className="text-slate-600">
-                  {worker.data?.state === 'complete'
-                    ? `${worker.data.data.availability} (demo)`
-                    : 'Unavailable (demo)'}
-                </dd>
+                <dd className="text-slate-600">{execution}</dd>
               </div>
             </dl>
             <Link to="/methodology" className="inline-link">
@@ -156,7 +220,9 @@ export function Overview() {
           <div>
             <h2 className="section-title">Recent experiments</h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              A snapshot of the synthetic experiment history.
+              {dataLabel === 'DEMO DATA'
+                ? 'A snapshot of the synthetic experiment history.'
+                : 'A snapshot of the published experiment history.'}
             </p>
           </div>
           <Button variant="ghost" size="sm" asChild>
@@ -168,8 +234,14 @@ export function Overview() {
         <ExperimentTable rows={demoExperiments.slice(0, 4)} />
         <div className="table-footer">
           <SlidersHorizontal size={13} aria-hidden="true" />
-          <span>Fixed example workload · no live measurements</span>
-          <span className="ml-auto font-mono">4 of 6 runs</span>
+          <span>
+            {dataLabel === 'DEMO DATA'
+              ? 'Fixed example workload · no live measurements'
+              : 'Published snapshot · no live measurements'}
+          </span>
+          <span className="ml-auto font-mono">
+            {Math.min(4, demoExperiments.length)} of {demoExperiments.length} runs
+          </span>
         </div>
       </section>
     </>

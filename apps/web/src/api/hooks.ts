@@ -3,6 +3,7 @@ import { mockApi, MockCancelledError, type MockScenario } from './mock-api';
 import { mockKey } from './query-client';
 import type { ContractCatalog, ExecutionState, ResourceName } from './types';
 import { toDashboardView } from '@/data/demo';
+import { useSnapshotInfo } from './snapshot-context';
 
 export function mockQueryOptions<K extends ResourceName>(
   resource: K,
@@ -58,6 +59,7 @@ export function useDemoData() {
   const experiments = useExperimentsQuery();
   const runs = useRunMetricsQuery();
   const reports = usePublishedReportsQuery();
+  const snapshot = useSnapshotInfo();
   if (
     registry.data?.state !== 'complete' ||
     experiments.data?.state !== 'complete' ||
@@ -66,12 +68,18 @@ export function useDemoData() {
   ) {
     throw new Error('Demo pages must render inside the ready contract boundary');
   }
-  return toDashboardView({
-    registry: registry.data,
-    experiments: experiments.data,
-    runs: runs.data,
-    reports: reports.data,
-  });
+  return {
+    ...toDashboardView(
+      {
+        registry: registry.data,
+        experiments: experiments.data,
+        runs: runs.data,
+        reports: reports.data,
+      },
+      snapshot.label,
+    ),
+    snapshot,
+  };
 }
 
 export type ReadyDashboard = Pick<ContractCatalog, 'registry' | 'experiments' | 'runs' | 'reports'>;

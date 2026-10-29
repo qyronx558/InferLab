@@ -7,18 +7,24 @@ import { EmptyState } from '@/components/EmptyState';
 import { useDemoData } from '@/api/hooks';
 
 export function Reports() {
-  const { demoReports } = useDemoData();
+  const { demoReports, dataLabel } = useDemoData();
   const [params, setParams] = useSearchParams();
   const experiment = params.get('experiment');
   const reports = demoReports.filter(
     (report) => !experiment || report.experiments.split(', ').includes(experiment),
   );
+  const fileStem =
+    dataLabel === 'DEMO DATA' ? 'demo' : dataLabel === 'MIXED DATA' ? 'mixed' : 'measured';
   const download = () => {
     const url = URL.createObjectURL(
       new Blob(
         [
           JSON.stringify(
-            { label: 'DEMO DATA', synthetic: true, reports: reports.map((report) => report.wire) },
+            {
+              label: dataLabel,
+              synthetic: dataLabel !== 'MEASURED DATA',
+              reports: reports.map((report) => report.wire),
+            },
             null,
             2,
           ),
@@ -30,7 +36,7 @@ export function Reports() {
     );
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'inferlab-demo-reports.json';
+    anchor.download = `inferlab-${fileStem}-reports.json`;
     anchor.click();
     URL.revokeObjectURL(url);
   };
@@ -39,18 +45,23 @@ export function Reports() {
       <PageHeading
         eyebrow="PUBLISHED KNOWLEDGE"
         title="Reports & findings"
-        description="An example library of reviewed experiment narratives. These are synthetic previews, not published scientific findings."
+        description={
+          dataLabel === 'DEMO DATA'
+            ? 'An example library of reviewed experiment narratives. These are synthetic previews, not published scientific findings.'
+            : 'Reviewed reports from this published static snapshot, with accepted run evidence and stated limitations.'
+        }
         action={
           <Button variant="outline" onClick={download}>
             <ArrowDownToLine size={15} aria-hidden="true" />
-            Export demo JSON
+            Export {fileStem} JSON
           </Button>
         }
       />
       {experiment && (
         <div className="mb-5 flex items-center gap-4 text-sm">
           <p>
-            Demo context: <span className="font-mono">{experiment}</span>
+            {dataLabel === 'DEMO DATA' ? 'Demo' : 'Snapshot'} context:{' '}
+            <span className="font-mono">{experiment}</span>
           </p>
           <Button variant="ghost" size="sm" onClick={() => setParams({})}>
             Show all reports
@@ -68,7 +79,7 @@ export function Reports() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="mb-3 flex flex-wrap items-center gap-3">
-                      <span className="subtle-tag">DEMO DATA</span>
+                      <span className="subtle-tag">{report.label}</span>
                       <span className="text-xs text-muted-foreground">{report.category}</span>
                     </div>
                     <h2 className="text-lg font-semibold tracking-tight">{report.title}</h2>
@@ -76,27 +87,32 @@ export function Reports() {
                       {report.description}
                     </p>
                     <p className="mt-3 font-mono text-[11px] text-muted-foreground">
-                      {report.id} · Example date: {report.date}
+                      {report.id} · {report.label === 'DEMO DATA' ? 'Example' : 'Published'} date:{' '}
+                      {report.date}
                     </p>
                     <details className="report-detail">
-                      <summary>Read demo report</summary>
+                      <summary>
+                        Read {report.label === 'DEMO DATA' ? 'demo' : 'published'} report
+                      </summary>
                       <div className="mt-4 space-y-3 text-sm leading-6 text-muted-foreground">
                         <p>
-                          This narrative is a UI fixture. It contains no measured findings. The
-                          final report will explain conditions, error counts and limitations before
-                          drawing conclusions.
+                          {report.label === 'DEMO DATA'
+                            ? 'This narrative is a UI fixture. It contains no measured findings. The final report will explain conditions, error counts and limitations before drawing conclusions.'
+                            : 'This reviewed snapshot explains the recorded conditions, accepted runs, unavailable measurements and limitations before drawing conclusions.'}
                         </p>
                         <dl>
                           <dt className="font-medium text-foreground">
-                            Illustrative source experiments
+                            {report.label === 'DEMO DATA' ? 'Illustrative' : 'Published'} source
+                            experiments
                           </dt>
                           <dd className="font-mono text-xs">{report.experiments}</dd>
                           <dt className="mt-3 font-medium text-foreground">
                             Reproducibility status
                           </dt>
                           <dd>
-                            Pending real model checksums, engine build, workload hash and measured
-                            runs.
+                            {report.label === 'DEMO DATA'
+                              ? 'Pending real model checksums, engine build, workload hash and measured runs.'
+                              : 'Pinned model revision, checksum, engine build, workload hash and accepted measured runs are included in the snapshot.'}
                           </dd>
                         </dl>
                       </div>
@@ -109,8 +125,18 @@ export function Reports() {
         </div>
       ) : (
         <EmptyState
-          title="No report for this demo run"
-          description="Queued, running and failed examples do not have completed reports."
+          title={
+            experiment
+              ? dataLabel === 'DEMO DATA'
+                ? 'No report for this demo run'
+                : 'No report for this published run'
+              : 'No published reports yet'
+          }
+          description={
+            experiment
+              ? 'Queued, running and failed examples do not have completed reports.'
+              : 'This release contains no reviewed report snapshots.'
+          }
           onReset={() => setParams({})}
         />
       )}
