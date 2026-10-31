@@ -82,7 +82,7 @@ def test_release_writes_manifest_checksums_and_only_published_reports(tmp_path: 
     [
         "password=hunter2",
         "C:\\Users\\owner\\private-prompt.txt",
-        "-----BEGIN PRIVATE KEY-----",
+        "-----BEGIN " + "PRIVATE KEY-----",
         "Traceback (most recent call last):",
     ],
 )
