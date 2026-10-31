@@ -17,7 +17,7 @@ import {
 import { downloadText } from '@/lib/download';
 
 export function Compare() {
-  const { demoModels } = useDemoData();
+  const { demoModels, dataLabel: snapshotLabel } = useDemoData();
   const [params, setParams] = useSearchParams();
   const left = demoModels.find((model) => model.id === params.get('left')) ?? demoModels[0];
   const right = demoModels.find((model) => model.id === params.get('right')) ?? demoModels[1];
@@ -56,7 +56,7 @@ export function Compare() {
       <PageHeading
         eyebrow="OBSERVATIONAL COMPARISON"
         title="Compare models"
-        description="Compare fixture values with revision, quantization, prompt distribution, sample count and hardware context attached to every chart."
+        description={`Compare ${snapshotLabel === 'DEMO DATA' ? 'fixture' : 'published'} values with revision, quantization, prompt distribution, sample count and hardware context attached to every chart.`}
         action={
           <div className="flex flex-wrap gap-2 print:hidden">
             <Button variant="outline" size="sm" onClick={exportCsv}>
@@ -169,8 +169,9 @@ export function Compare() {
       </section>
       <ComparisonMetricTable left={left} right={right} dataLabel={dataLabel} />
       <p className="comparison-footer-note">
-        Demo fixtures only. No model, engine or GPU is connected. These comparisons are
-        observational, not controlled experiments, and do not establish causation.
+        {snapshotLabel === 'DEMO DATA' ? 'Demo fixtures only.' : 'Published snapshot values.'} No
+        model, engine or GPU is connected. These comparisons are observational, not controlled
+        experiments, and do not establish causation.
       </p>
     </>
   );

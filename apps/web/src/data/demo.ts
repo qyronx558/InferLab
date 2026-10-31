@@ -124,6 +124,7 @@ function inputTokenRange(runs: RunMetrics[]) {
 
 export function toDashboardView(
   source: Pick<ContractCatalog, 'registry' | 'experiments' | 'runs' | 'reports'>,
+  labelOverride?: DataLabel,
 ) {
   if (
     source.registry.state !== 'complete' ||
@@ -135,7 +136,7 @@ export function toDashboardView(
   }
   const experiments = source.experiments.data.items;
   const runs = source.runs.data;
-  const dataLabel = source.experiments.label;
+  const dataLabel = labelOverride ?? source.experiments.label;
   const colors = ['#3563c9', '#6382bb', '#94a8cb'];
   const demoModels: ComparisonModel[] = source.registry.data.models.map((model, index) => {
     const experiment = experiments.find(
@@ -216,6 +217,7 @@ export function toDashboardView(
     title: report.title,
     description: report.description,
     category: report.category,
+    label: report.label,
     date: new Intl.DateTimeFormat('en-US', {
       month: 'long',
       day: 'numeric',
@@ -225,6 +227,6 @@ export function toDashboardView(
     experiments: report.summary.experiment_id,
     wire: report,
   }));
-  return { demoModels, demoExperiments, demoReports };
+  return { demoModels, demoExperiments, demoReports, dataLabel };
 }
 export type ExperimentRow = ReturnType<typeof toDashboardView>['demoExperiments'][number];

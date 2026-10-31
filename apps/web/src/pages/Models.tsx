@@ -6,13 +6,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useDemoData } from '@/api/hooks';
 
 export function Models() {
-  const { demoModels } = useDemoData();
+  const { demoModels, dataLabel, snapshot } = useDemoData();
   return (
     <>
       <PageHeading
         eyebrow="MODEL REGISTRY"
         title="Small models. Full context."
-        description="Example registry entries for local inference exploration. No models are installed or downloaded by this interface."
+        description={
+          dataLabel === 'DEMO DATA'
+            ? 'Example registry entries for local inference exploration. No models are installed or downloaded by this interface.'
+            : 'Model metadata referenced by the published snapshot. No models are installed or downloaded by this interface.'
+        }
       />
       <div className="grid gap-5 md:grid-cols-3">
         {demoModels.map((model) => (
@@ -22,7 +26,7 @@ export function Models() {
                 <span className="rounded-lg border bg-slate-50 p-3 text-primary">
                   <Boxes size={23} aria-hidden="true" />
                 </span>
-                <span className="subtle-tag">DEMO DATA</span>
+                <span className="subtle-tag">{dataLabel}</span>
               </div>
               <h2 className="text-xl font-semibold tracking-tight">{model.name}</h2>
               <p className="mt-1 text-sm text-muted-foreground">{model.size} parameter model</p>
@@ -32,21 +36,22 @@ export function Models() {
                   <dd>{model.quantization}</dd>
                 </div>
                 <div>
-                  <dt>Example engine</dt>
-                  <dd>Ollama</dd>
+                  <dt>Engine</dt>
+                  <dd>{model.provenance?.engine.name ?? 'Unavailable'}</dd>
                 </div>
                 <div>
                   <dt>Revision</dt>
-                  <dd>Demo placeholder</dd>
+                  <dd className="break-all font-mono text-[11px]">{model.revision}</dd>
                 </div>
                 <div>
                   <dt>Availability</dt>
-                  <dd>Not connected</dd>
+                  <dd>{snapshot.status === 'snapshot' ? 'Published snapshot' : 'Not connected'}</dd>
                 </div>
               </dl>
               <Button variant="outline" asChild className="w-full">
                 <Link to={`/compare?left=${model.id}`}>
-                  Compare example <ArrowUpRight aria-hidden="true" />
+                  Compare {dataLabel === 'DEMO DATA' ? 'example' : 'published result'}{' '}
+                  <ArrowUpRight aria-hidden="true" />
                 </Link>
               </Button>
             </CardContent>
@@ -54,8 +59,10 @@ export function Models() {
         ))}
       </div>
       <div className="mt-6 rounded-lg border border-dashed p-6 text-sm leading-6 text-muted-foreground">
-        <strong className="text-foreground">Registry first, execution second.</strong> Real entries
-        will require an approved local model, a pinned revision/checksum and licensing review.
+        <strong className="text-foreground">Registry first, execution second.</strong>{' '}
+        {dataLabel === 'DEMO DATA'
+          ? 'Real entries will require an approved local model, a pinned revision/checksum and licensing review.'
+          : 'Published entries carry pinned revisions and checksums from the reviewed release.'}{' '}
         Arbitrary model URLs and automatic downloads are excluded.
       </div>
     </>

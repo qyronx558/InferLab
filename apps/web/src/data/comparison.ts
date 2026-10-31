@@ -28,7 +28,7 @@ export const comparisonMetrics: ComparisonMetric[] = [
     shortLabel: 'TTFT',
     unit: 'ms',
     higherIsBetter: false,
-    description: 'Median time to first token reported by the fixture summary.',
+    description: 'Median time to first token reported by the summary.',
     format: (value) => Math.round(value).toLocaleString('en-US'),
   },
   {
@@ -37,7 +37,7 @@ export const comparisonMetrics: ComparisonMetric[] = [
     shortLabel: 'p95 latency',
     unit: 'ms',
     higherIsBetter: false,
-    description: '95th percentile request latency reported by the fixture summary.',
+    description: '95th percentile request latency reported by the summary.',
     format: (value) => Math.round(value).toLocaleString('en-US'),
   },
   {
@@ -65,7 +65,7 @@ export const comparisonMetrics: ComparisonMetric[] = [
     shortLabel: 'Quality',
     unit: 'score',
     higherIsBetter: true,
-    description: 'Fixture quality score on a 0–1 scale; unavailable when not measured.',
+    description: 'Reported quality score on a 0–1 scale; unavailable when not measured.',
     format: (value) => value.toFixed(2),
   },
 ];
@@ -135,19 +135,22 @@ export function comparisonContextRows(left: ComparisonModel, right: ComparisonMo
 }
 
 export function comparisonNotice(left: ComparisonModel, right: ComparisonModel) {
+  const demo = left.dataLabel === 'DEMO DATA';
   if (left.id === right.id) {
     return {
-      title: 'Same demo model selected on both sides',
-      body: 'The values repeat the same demo experiment. This is not an independent comparison and does not establish a speedup or quality advantage.',
+      title: `Same ${demo ? 'demo ' : ''}model selected on both sides`,
+      body: `The values repeat the same ${
+        demo ? 'demo experiment' : 'published result'
+      }. This is not an independent comparison and does not establish a speedup or quality advantage.`,
       differences: [] as string[],
     };
   }
   const differences = differingContextFields(left, right);
   return {
     title: 'Observational comparison, not a controlled experiment',
-    body: `The configurations differ in ${differences.join(
-      ', ',
-    )}. These views report fixture values only; they do not establish that any difference is caused by the model.`,
+    body: `The configurations differ in ${differences.join(', ')}. These views report ${
+      demo ? 'fixture' : 'published'
+    } values only; they do not establish that any difference is caused by the model.`,
     differences,
   };
 }

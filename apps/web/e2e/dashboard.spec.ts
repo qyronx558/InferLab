@@ -1,5 +1,104 @@
-import { expect, test } from '@playwright/test';
+import { createHash } from 'node:crypto';
+import { expect, test, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { mockFixtures } from '../src/api/fixtures.generated';
+
+async function captureOverview(page: Page, path: string) {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      await page.screenshot({ path, fullPage: true, animations: 'disabled' });
+      return;
+    } catch (error) {
+      if (attempt >= 1) throw error;
+    }
+  }
+}
+
+function encode(value: unknown) {
+  return Buffer.from(JSON.stringify(value));
+}
+
+function sha256(value: Buffer) {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+function buildPublishedSnapshot() {
+  const reportAssets = mockFixtures.reports.data.map((report) => {
+    const data = encode(report);
+    const hash = sha256(data);
+    return {
+      data,
+      path: `/data/v1/reports/${report.id}.${hash}.json`,
+      entry: {
+        id: report.id,
+        title: report.title,
+        description: report.description,
+        category: report.category,
+        data_kind: report.data_kind,
+        label: report.label,
+        published_at: report.published_at,
+        experiment_id: report.config.experiment_id,
+        engine_id: report.config.engine_id,
+        model_id: report.config.model_id,
+        methodology_version: report.provenance.methodology_version,
+        condition: report.config.condition,
+        sample_count: report.summary.sample_count,
+        path: `/data/v1/reports/${report.id}.${hash}.json`,
+        sha256: hash,
+        size: data.byteLength,
+      },
+    };
+  });
+  const modelsData = encode({
+    schema_version: '1.0',
+    label: 'DEMO DATA',
+    models: mockFixtures.registry.data.models,
+  });
+  const modelsHash = sha256(modelsData);
+  const modelsPath = `/data/v1/models.${modelsHash}.json`;
+  const methodologyData = encode({
+    schema_version: '1.0',
+    methodology_versions: ['demo-v1'],
+    metrics: [
+      {
+        key: 'ttft',
+        label: 'Time to first token',
+        unit: 'ms',
+        direction: 'lower',
+        description: 'Client-observed time to the first streamed token.',
+      },
+    ],
+    conditions: ['warm', 'cold'],
+    protocol: ['Keep warm and cold conditions separate.'],
+    limitations: ['Missing values remain unavailable.'],
+  });
+  const methodologyHash = sha256(methodologyData);
+  const methodologyPath = `/data/v1/methodology.${methodologyHash}.json`;
+  const manifestData = encode({
+    schema_version: '1.0',
+    release_id: 'REL-20261029T120000Z-abcdef12',
+    published_at: '2026-10-29T12:00:00Z',
+    label: 'DEMO DATA',
+    data_kind: 'demo',
+    report_count: reportAssets.length,
+    reports: reportAssets.map((asset) => asset.entry),
+    models: { path: modelsPath, sha256: modelsHash, size: modelsData.byteLength },
+    methodology: {
+      path: methodologyPath,
+      sha256: methodologyHash,
+      size: methodologyData.byteLength,
+    },
+    limits: { max_reports: 100, max_files: 2000, max_asset_bytes: 5_242_880 },
+  });
+  return {
+    manifestData,
+    assets: new Map<string, Buffer>([
+      ...reportAssets.map((asset) => [asset.path, asset.data] as const),
+      [modelsPath, modelsData],
+      [methodologyPath, methodologyData],
+    ]),
+  };
+}
 
 const routes = [
   '/',
@@ -44,8 +143,7 @@ test('all routes disclose demo data, fit the viewport and meet automated WCAG ch
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page.locator('.demo-badge')).toHaveText('DEMO DATA');
-    if (route === '/')
-      await page.screenshot({ path: testInfo.outputPath('overview.png'), fullPage: true });
+    if (route === '/') await captureOverview(page, testInfo.outputPath('overview.png'));
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
     ).toBe(true);
@@ -57,10 +155,42 @@ test('all routes disclose demo data, fit the viewport and meet automated WCAG ch
   expect(apiRequests).toEqual([]);
 });
 
+test('published snapshots are verified and disclose their release date', async ({ page }) => {
+  const snapshot = buildPublishedSnapshot();
+  await page.route('**/data/v1/**', async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path === '/data/v1/manifest.json') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: snapshot.manifestData,
+      });
+      return;
+    }
+    const asset = snapshot.assets.get(path);
+    if (!asset) {
+      await route.fulfill({ status: 404, body: '' });
+      return;
+    }
+    await route.fulfill({ status: 200, contentType: 'application/json', body: asset });
+  });
+
+  await page.goto('/');
+  await expect(page.getByText('Published snapshot.')).toBeVisible();
+  await expect(page.getByText('October 29, 2026')).toBeVisible();
+  await expect(page.getByText('REL-20261029T120000Z-abcdef12')).toBeVisible();
+  await expect(page.locator('.demo-badge')).toHaveText('DEMO DATA');
+
+  await page.goto('/methodology');
+  await expect(page.getByRole('heading', { name: 'Published methodology' })).toBeVisible();
+  await expect(page.getByText('Time to first token · ms')).toBeVisible();
+});
+
 test('keyboard navigation, mobile dialog focus and route transitions work', async ({
   page,
 }, testInfo) => {
   await page.goto('/');
+  await expect(page.locator('.demo-badge')).toHaveText('DEMO DATA');
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
   await page.keyboard.press('Enter');

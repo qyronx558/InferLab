@@ -159,7 +159,7 @@ export const experimentPageSchema = z.strictObject({
 
 export type LiveExperimentPage = z.infer<typeof experimentPageSchema>;
 
-const engineSchema = z.strictObject({
+export const engineSchema = z.strictObject({
   id: engineIdSchema,
   name: shortText,
   version: shortText,
@@ -168,7 +168,7 @@ const engineSchema = z.strictObject({
   seed_supported: z.boolean(),
 });
 
-const modelSchema = z.strictObject({
+export const modelSchema = z.strictObject({
   id: identifier,
   name: shortText,
   parameter_size: shortText,
@@ -180,7 +180,7 @@ const modelSchema = z.strictObject({
   license_name: shortText,
 });
 
-const workloadSchema = z.strictObject({
+export const workloadSchema = z.strictObject({
   id: identifier,
   prompt_id: identifier,
   sha256: checksum,

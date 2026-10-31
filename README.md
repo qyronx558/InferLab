@@ -4,9 +4,10 @@ Local LLM inference benchmarking with a public, read-only portfolio of reviewed
 results. This is the public dashboard design-system preview with engineering
 guardrails (rulebook Prompts 01-04), plus the explicitly authorized CPU metric
 helpers from the tutoring step and a standalone local Ollama HTTP transport. Public
-displayed results are labeled DEMO DATA. Real benchmark algorithms, publishing and
-cloud deployment are not implemented yet; the authenticated local API, admin
-console and private worker queue are.
+displayed results are labeled DEMO DATA until an operator explicitly publishes
+reviewed static snapshots. Real benchmark algorithms and cloud deployment are not
+implemented yet; the authenticated local API, admin console, private worker queue
+and static snapshot exporter are.
 
 ## Windows setup
 
@@ -85,6 +86,29 @@ The default file is `.local/inferlab.db`. See [DATABASE.md](docs/DATABASE.md) fo
 `INFERLAB_DATABASE_URL`, PostgreSQL, typed units, privacy and retention. Raw prompts
 and bulky traces are not database fields. The worker supervises an injected
 owner-authored benchmark plugin; no default benchmark runner is installed.
+
+## Publish static snapshots
+
+The public dashboard reads `/data/v1/manifest.json` when a reviewed release exists,
+verifies every asset's size and SHA-256 checksum, and displays the snapshot date and
+release ID. Without a manifest it falls back to bundled demo data. Publishing is an
+explicit operator step; builds and API startup never publish automatically.
+
+```powershell
+# Validate without replacing the public release:
+uv run --locked inferlab-publish --validate-only --fixture contracts/fixtures/demo.json
+
+# Publish the reviewed fixture (or omit --fixture to read published_reports):
+uv run --locked inferlab-publish --fixture contracts/fixtures/demo.json
+```
+
+The default output is `apps/web/public/data`, which receives `v1/manifest.json`,
+immutable hashed reports, models and methodology assets. Use `--output` to stage a
+different static root. The exporter enforces the 100-report, 2,000-file and 5 MiB
+per-asset limits, rejects secret/path/raw-log canaries, and replaces `v1` atomically
+only after validation succeeds. See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for the
+public contract and [DEFINITION-OF-DONE.md](docs/DEFINITION-OF-DONE.md) for the
+publication boundary.
 
 The [API guide](docs/API.md) documents published-only public reads and authenticated
 experiment CRUD, rename/archive, cancel/retry, worker heartbeat, pagination,

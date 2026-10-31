@@ -3,6 +3,7 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SheetTrigger } from '@/components/ui/sheet';
+import { useSnapshotInfo } from '@/api/snapshot-context';
 
 const names: Record<string, string> = {
   '/': 'Overview',
@@ -16,6 +17,7 @@ const names: Record<string, string> = {
 export function Header() {
   const { pathname } = useLocation();
   const [params, setParams] = useSearchParams();
+  const snapshot = useSnapshotInfo();
   return (
     <header className="workspace-header">
       <div className="flex min-w-0 items-center gap-3">
@@ -50,7 +52,7 @@ export function Header() {
           </select>
         </label>
         <Badge variant="outline" className="demo-badge">
-          DEMO DATA
+          {snapshot.label}
         </Badge>
         <span className="header-avatar" aria-label="Read-only preview">
           IL
