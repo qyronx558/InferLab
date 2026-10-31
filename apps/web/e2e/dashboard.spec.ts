@@ -186,6 +186,37 @@ test('published snapshots are verified and disclose their release date', async (
   await expect(page.getByText('Time to first token · ms')).toBeVisible();
 });
 
+test('a corrupt published snapshot is disclosed and falls back to demo data', async ({ page }) => {
+  const snapshot = buildPublishedSnapshot();
+  const reportPath = [...snapshot.assets.keys()].find((path) => path.includes('/reports/'));
+  if (!reportPath) throw new Error('Expected a report asset');
+  await page.route('**/data/v1/**', async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path === '/data/v1/manifest.json') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: snapshot.manifestData,
+      });
+      return;
+    }
+    const asset = snapshot.assets.get(path);
+    if (!asset) {
+      await route.fulfill({ status: 404, body: '' });
+      return;
+    }
+    const body = Buffer.from(asset);
+    if (path === reportPath) body[0] = body[0] === 0x7b ? 0x5b : 0x7b;
+    await route.fulfill({ status: 200, contentType: 'application/json', body });
+  });
+
+  await page.goto('/');
+  const alert = page.getByRole('alert');
+  await expect(alert).toContainText('Published snapshot unavailable.');
+  await expect(alert).toContainText('checksum does not match');
+  await expect(page.locator('.demo-badge')).toHaveText('DEMO DATA');
+});
+
 test('keyboard navigation, mobile dialog focus and route transitions work', async ({
   page,
 }, testInfo) => {

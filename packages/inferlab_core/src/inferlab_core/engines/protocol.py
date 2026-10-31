@@ -16,8 +16,8 @@ class GenerationRequest:
             raise ValueError("model must be a nonempty installed model name")
         if not isinstance(self.prompt, str):
             raise ValueError("prompt must be a string")
-        if type(self.max_tokens) is not int or self.max_tokens < 1:
-            raise ValueError("max_tokens must be a positive integer")
+        if type(self.max_tokens) is not int or not 1 <= self.max_tokens <= 2048:
+            raise ValueError("max_tokens must be an integer between 1 and 2048")
 
 
 @dataclass(frozen=True)

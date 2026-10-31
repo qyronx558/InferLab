@@ -183,3 +183,72 @@ def test_cli_validates_fixture_without_writing(
     assert code == 0
     assert '"written": false' in capsys.readouterr().out
     assert not output.exists()
+
+
+def test_release_identifier_cannot_escape_the_output_directory(tmp_path: Path) -> None:
+    output = tmp_path / "data"
+    with pytest.raises(ValidationError):
+        publish(output, demo_reports(), "../../escape")
+    assert not output.exists()
+    assert not (tmp_path / "escape").exists()
+
+
+def test_manifest_binds_paths_to_identifiers_and_checksums(tmp_path: Path) -> None:
+    manifest = publish(tmp_path, demo_reports())
+    data = manifest.model_dump(mode="json")
+
+    traversal_path = copy.deepcopy(data)
+    traversal_path["reports"][0]["path"] = (
+        "/data/v1/reports/../../private." + traversal_path["reports"][0]["sha256"] + ".json"
+    )
+    with pytest.raises(ValidationError):
+        Manifest.model_validate(traversal_path)
+
+    checksum_path = copy.deepcopy(data)
+    checksum_path["reports"][0]["sha256"] = "f" * 64
+    with pytest.raises(ValidationError, match="bind"):
+        Manifest.model_validate(checksum_path)
+
+    duplicate = copy.deepcopy(data)
+    duplicate["reports"].append(copy.deepcopy(duplicate["reports"][0]))
+    duplicate["report_count"] = len(duplicate["reports"])
+    with pytest.raises(ValidationError, match="unique"):
+        Manifest.model_validate(duplicate)
+
+    bad_asset = copy.deepcopy(data)
+    bad_asset["models"]["path"] = "/data/v1/models/../../private.json"
+    with pytest.raises(ValidationError):
+        Manifest.model_validate(bad_asset)
+
+    oversized = copy.deepcopy(data)
+    oversized["models"]["size"] = 5_242_881
+    with pytest.raises(ValidationError):
+        Manifest.model_validate(oversized)
+
+
+def test_snapshot_contracts_reject_duplicate_models_and_methodology_versions() -> None:
+    reports = demo_reports()
+    models = [report.provenance.model for report in reports]
+    with pytest.raises(ValidationError, match="unique"):
+        ModelsSnapshot.model_validate(
+            {"schema_version": "1.0", "label": "DEMO DATA", "models": models + models[:1]}
+        )
+    with pytest.raises(ValidationError, match="unique"):
+        MethodologySnapshot.model_validate(
+            {
+                "schema_version": "1.0",
+                "methodology_versions": ["demo-v1", "demo-v1"],
+                "metrics": [
+                    {
+                        "key": "ttft",
+                        "label": "Time to first token",
+                        "unit": "ms",
+                        "direction": "lower",
+                        "description": "Client-observed time to first content.",
+                    }
+                ],
+                "conditions": ["warm"],
+                "protocol": ["Keep conditions separate."],
+                "limitations": ["Missing values remain unavailable."],
+            }
+        )

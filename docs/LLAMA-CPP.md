@@ -50,8 +50,9 @@ observations. There is no documented HTTP GPU-layer setter used here.
 | `health_check` | `GET /health`, then `GET /props` | Requires ready status, matching per-slot context and exactly one slot; rejects sleeping state when reported. Returns `EngineHealth.version` from `build_info`. |
 | `model_info` | `GET /v1/models` | Requires one model matching the configured alias; returns allowlisted metadata only. |
 
-Requests map `max_tokens` to `n_predict` and explicitly disable prompt caching via
-`cache_prompt: false`. No GPU-layer or invented per-request context setting is sent
+Requests map `max_tokens` (bounded to 1-2048 by `GenerationRequest`) to `n_predict`
+and explicitly disable prompt caching via `cache_prompt: false`. No GPU-layer or
+invented per-request context setting is sent
 over HTTP. Call `health_check` and `model_info` before benchmark observation, outside
 the future runner's timed boundary. Generation also checks the returned alias and,
 when present, `generation_settings.n_ctx`. A missing context echo does not verify

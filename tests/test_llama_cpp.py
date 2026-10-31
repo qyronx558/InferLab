@@ -215,9 +215,15 @@ def test_unknown_model_and_oversized_output_do_not_send_requests() -> None:
                 await engine.generate(GenerationRequest(model="unknown", prompt="Hello"))
             with pytest.raises(ModelNotFoundError):
                 await engine.model_info("unknown")
+            with pytest.raises(ValueError, match="max_tokens"):
+                GenerationRequest(model="local-demo", prompt="", max_tokens=2049)
+            small_context = LlamaCppEngine(
+                LlamaServerConfig(model_alias="local-demo", context_tokens=1024),
+                client=client,
+            )
             with pytest.raises(ValueError, match="context"):
-                await engine.generate(
-                    GenerationRequest(model="local-demo", prompt="", max_tokens=2049)
+                await small_context.generate(
+                    GenerationRequest(model="local-demo", prompt="", max_tokens=1500)
                 )
 
     asyncio.run(scenario())
