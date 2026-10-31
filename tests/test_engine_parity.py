@@ -5,7 +5,7 @@ import json
 from collections.abc import AsyncIterator
 from contextlib import aclosing
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, cast
 
 import httpx
 import pytest
@@ -29,6 +29,16 @@ from inferlab_core.engines import (
 )
 
 REQUEST = GenerationRequest(model="local-demo", prompt="private prompt", max_tokens=8)
+
+
+@pytest.mark.parametrize("value", [0, -1, 2049, 10**9, True, 1.0, "8", None])
+def test_generation_request_rejects_unbounded_or_noninteger_output(value: object) -> None:
+    with pytest.raises(ValueError, match="max_tokens"):
+        GenerationRequest(model="local-demo", prompt="", max_tokens=cast(int, value))
+
+
+def test_generation_request_accepts_documented_upper_bound() -> None:
+    assert GenerationRequest(model="local-demo", prompt="", max_tokens=2048).max_tokens == 2048
 
 
 @dataclass(frozen=True)
@@ -322,6 +332,9 @@ def test_mid_body_timeout_closes_response(case: Case, streaming: bool) -> None:
         "http://localhost/api",
         "http://localhost/?secret=1",
         "http://localhost/#fragment",
+        "http://169.254.169.254",
+        "http://127.0.0.1.evil.example",
+        "http://localhost/admin",
     ],
 )
 def test_loopback_origin_policy(case: Case, url: str) -> None:

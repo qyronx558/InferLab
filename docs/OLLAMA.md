@@ -14,8 +14,9 @@ unchanged.
 | `model_info(model)` | `POST /api/show` | `ModelInfo` with format, family, size, quantization and capabilities |
 | `aclose()` | None | Closes an adapter-owned HTTP client |
 
-`GenerationRequest` takes an installed model name, prompt and positive
-`max_tokens` (default 128, mapped to `options.num_predict`). Model names are sent
+`GenerationRequest` takes an installed model name, prompt and
+`max_tokens` from 1 to 2048 (default 128, mapped to `options.num_predict`). Model
+names are sent
 as JSON, never interpreted as commands or URL paths. Other generation settings,
 chat, embeddings, images and model management are outside this minimal adapter.
 Ollama must already be running and the model must already be installed. There is

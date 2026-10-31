@@ -151,9 +151,11 @@ Expected: contract drift checks, formatting/lint/types/build and CPU-only tests
 pass, worker exits without executing jobs, core wheel builds under `dist/`.
 Frontend tests cover the public dashboard, its typed demo queries and the live admin
 console. GitHub Actions repeats the
-checks on pull requests and pushes to main with no GPU or secrets. See
-[CONTRIBUTING.md](CONTRIBUTING.md) for optional hooks, test conventions, secret
-scanning guidance and the boundary around owner-written benchmark algorithms.
+checks on pull requests and pushes to main with no GPU or secrets. See the
+[release gate checklist](docs/RELEASE-GATES.md) for the mapping to owner-recorded
+evidence, and [CONTRIBUTING.md](CONTRIBUTING.md) for optional hooks, test
+conventions, secret scanning guidance and the boundary around owner-written benchmark
+algorithms.
 
 The public dashboard routes are Overview (`/`), Experiments, Compare, Models, Reports
 and Methodology, plus the printable comparison report at `/compare/report`.

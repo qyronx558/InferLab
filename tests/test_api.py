@@ -831,3 +831,94 @@ def test_mutation_payloads_cannot_replace_config_or_assign_job_state(api: APIHar
         )
         assert len(failures) == 3
         assert {event.action for event in failures} == {"update", "cancel"}
+
+
+def test_relogin_revokes_old_session_and_expired_session_cannot_mutate(
+    api: APIHarness,
+) -> None:
+    old_token = api.client.cookies.get(COOKIE)
+    old_csrf = api.headers["X-CSRF-Token"]
+    assert old_token is not None
+    login = api.client.post(
+        BASE + "/auth/login", json={"password": PASSWORD}, headers={"Origin": ORIGIN}
+    )
+    assert login.status_code == 200
+    new_token = api.client.cookies.get(COOKIE)
+    new_csrf = login.json()["csrf_token"]
+    assert new_token is not None and new_token != old_token
+    assert new_csrf != old_csrf
+
+    with TestClient(api.client.app, base_url="https://127.0.0.1") as stale:
+        stale_headers = {
+            "Cookie": f"{COOKIE}={old_token}",
+            "Origin": ORIGIN,
+            "X-CSRF-Token": old_csrf,
+            "Idempotency-Key": "stale-session-submit",
+        }
+        assert stale.get(BASE + "/auth/session", headers=stale_headers).status_code == 401
+        assert (
+            stale.post(BASE + "/experiments", json=api.body(), headers=stale_headers).status_code
+            == 401
+        )
+
+    api.headers["X-CSRF-Token"] = new_csrf
+    api.clock.value += timedelta(hours=12)
+    expired = api.client.post(
+        BASE + "/experiments",
+        json=api.body("EXP-expired", "expired-session"),
+        headers=api.headers | {"Idempotency-Key": "expired-session"},
+    )
+    assert expired.status_code == 401
+    with Session(api.engine) as session:
+        assert session.get(Experiment, "EXP-expired") is None
+        assert session.scalar(sa.select(sa.func.count()).select_from(AdminSession)) == 1
+
+
+def test_unexpected_errors_are_redacted_and_keep_request_id(
+    api: APIHarness, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    canary = "private-internal-canary-never-disclose"
+
+    def fail() -> None:
+        raise RuntimeError(canary)
+
+    monkeypatch.setattr(api.runner, "registry", fail)
+    with TestClient(
+        api.client.app, base_url="https://127.0.0.1", raise_server_exceptions=False
+    ) as client:
+        client.cookies.update(api.client.cookies)
+        response = client.get(BASE + "/registry", headers=api.headers)
+    assert response.status_code == 500
+    assert response.json() == {
+        "error": {
+            "code": "internal_error",
+            "message": "Unexpected server error.",
+            "request_id": response.headers["x-request-id"],
+        }
+    }
+    assert canary not in response.text
+
+
+def test_idempotency_keys_are_scoped_to_one_request(api: APIHarness) -> None:
+    created = api.submit("EXP-scope", "shared-key")
+    assert created.status_code == 202
+    reused = api.mutate(
+        "PATCH",
+        "/experiments/EXP-scope",
+        "shared-key",
+        {"name": "Reused key", "expected_version": 1},
+    )
+    assert reused.status_code == 409
+    assert reused.json()["error"]["code"] == "idempotency_conflict"
+
+    body = api.body("EXP-header", "body-key")
+    mismatch = api.client.post(
+        BASE + "/experiments",
+        json=body,
+        headers=api.headers | {"Idempotency-Key": "header-key"},
+    )
+    assert mismatch.status_code == 422
+    assert mismatch.json()["error"]["code"] == "invalid_idempotency_key"
+    with Session(api.engine) as session:
+        assert session.get(Experiment, "EXP-header") is None
+        assert session.get(APIRequest, "shared-key") is not None

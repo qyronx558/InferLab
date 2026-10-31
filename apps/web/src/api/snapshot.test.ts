@@ -189,4 +189,51 @@ describe('published snapshot loading', () => {
     mislabeled.manifest.data_kind = 'measured';
     await expect(loader(mislabeled)).rejects.toThrow(/label does not match/);
   });
+
+  it('rejects traversal paths, duplicate report IDs and oversized assets before loading them', async () => {
+    const traversal = await fixture();
+    const first = traversal.manifest.reports[0];
+    if (!first) throw new Error('Expected a report fixture');
+    first.path = `/data/v1/reports/../private.${first.sha256}.json`;
+    await expect(loader(traversal)).rejects.toBeInstanceOf(SnapshotError);
+    expect(traversal.fetchImpl).toHaveBeenCalledTimes(1);
+
+    const duplicate = await fixture();
+    const duplicateEntry = duplicate.manifest.reports[0];
+    if (!duplicateEntry) throw new Error('Expected a report fixture');
+    duplicate.manifest.reports.push(structuredClone(duplicateEntry));
+    duplicate.manifest.report_count = duplicate.manifest.reports.length;
+    await expect(loader(duplicate)).rejects.toThrow(/unique/);
+    expect(duplicate.fetchImpl).toHaveBeenCalledTimes(1);
+
+    const oversized = await fixture();
+    oversized.manifest.models.size = 5_242_881;
+    await expect(loader(oversized)).rejects.toBeInstanceOf(SnapshotError);
+    expect(oversized.fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects a non-JSON or size-mismatched asset without using it', async () => {
+    const source = await fixture();
+    const first = source.manifest.reports[0];
+    if (!first) throw new Error('Expected a report fixture');
+    const data = source.assets.get(first.path);
+    if (!data) throw new Error('Expected a report asset');
+    const html = new Response('<html>private fallback</html>', {
+      status: 200,
+      headers: { 'Content-Type': 'text/html' },
+    });
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      const path = typeof input === 'string' ? input : input.toString();
+      if (path === '/data/v1/manifest.json') return jsonResponse(source.manifest);
+      if (path === first.path) return html;
+      const asset = source.assets.get(path);
+      return asset ? binaryResponse(asset) : new Response(null, { status: 404 });
+    });
+    await expect(loadPublishedSnapshot(fetchImpl as typeof fetch)).rejects.toThrow(
+      /did not return JSON/,
+    );
+
+    first.size = data.byteLength + 1;
+    await expect(loader(source)).rejects.toThrow(/size does not match/);
+  });
 });
